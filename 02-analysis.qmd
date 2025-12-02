@@ -15,21 +15,35 @@ format: html
     i) What is the most common judgement?
     ii) What is the most common disposition?
     iii) How many guilty cases per year?
-    iv) What is the month with the most guilty dispositions percentage?
-    v) What is the average percentage of guilty dispositions for each month since 2016?
-4. People Analysis
-    i) How many people received multiple citations/fines? Who has received the most?
+    iv) What is the month with the most guilty dispositions and highest percentage?
+    v) What is the average percentage of guilty dispositions for each month from 2016-2024?
+4. Top people
+    i) Who has received the most citations? How many people received multiple citations/fines?
     ii) Individual fine statistics
         A. Who are the most heavily fined people?
-        B. Who are the most heavily fined people? 
-        C. How much of those fines got dismissed? 
-        D. How much did they pay? 
-        E. How much do they still have due? 
-        F. Who has paid the highest amount of dues?
+        B. How much of those fines got dismissed? 
+        C. How much did they pay? 
+        D. How much do they still have due? 
+        E. Who has paid the highest amount of dues?
     iii) General fine statistics
         A. How many people still owe fines to the city?
         B. How many people have paid their fines?
         C. How many people have had their fines dismissed?
+5. Fines
+    i) How many distinct people are there who were fined?
+    ii) How many people still owe fines to the city? How much is the city owed in total?
+    iii) How many people have paid some/all of their fines?
+    iv) How many people have had some/all of their fines dismissed?
+6. Jail time
+    i) How many jail judgments have been given?
+    ii) How many individual people have been jailed? How many have been jailed more than once?
+7. Individual people analysis
+    i) Kevin Shakesnider received the highest jail judgments, let's visualize that.
+    ii) Patricia Norris has the highest citation count, let's visualize that.
+    iii) Bobby Anderson
+    iv) Rickey Garrett
+    
+To add perhaps:
 5. Dismissal impacts
     i) Do dismissal rates change over time
     ii) How many people with multiple citations also had their fines dismissed?
@@ -49,6 +63,8 @@ library(janitor)
 library(sf)
 library(mapview)
 library(ggspatial)
+library(tigris)
+library(mapview)
 ```
 
 ## Importing
@@ -64,15 +80,31 @@ unhoused |> glimpse()
 
 What is the year with the most citations?
 
+#### 1.1.1 Creating distinct object
+
+Right now, some rows have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, I will create an object that does not have duplicate rows. I will be keeping the second appearance because that provides the most updated data.
+
 ```{r}
-unhoused |> # @ fix date grouping
+unhoused_distinct <- unhoused |> 
+  group_by(case_number) |>  
+  arrange(desc(judgment_date)) |> 
+  slice(1) |>
+  ungroup()
+
+unhoused_distinct |> glimpse()
+```
+
+#### 1.1.2 Finding year most citations
+
+```{r}
+unhoused_distinct |> 
   filter(off_yr < 2025) |> 
   group_by(year(offense_date)) |> 
   summarize(yearly_offenses = n()) |> 
   arrange((yearly_offenses)) 
 ```
 
-#### 1.1.1 Data takeaways
+#### 1.1.3 Data takeaways
 
 * The year with the highest number of citations is 2016 with 5800, followed by 2020 with 5011. The year with the lowest number of citations is 2018, at 1385.	
 
@@ -81,10 +113,10 @@ unhoused |> # @ fix date grouping
 What's the month with the most citations from 2016 to 2024?
 
 ```{r}
-unhoused |> 
-  filter(offense_date >= "2023-07-01") |> # i'm looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024.
-  group_by(off_yr,# @ create flag for before/after whitmire term so i can group by before/after more easily. add graph by color
-           off_mo_label) |> 
+unhoused_distinct |> 
+  #filter(offense_date >= "2023-07-01") |> # i'm looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024.
+  group_by(off_yr,
+           off_mo_label) |> #@ get floor date
   summarise(
     yr_mo_off = sum(n())) |> 
   arrange(desc(yr_mo_off))
@@ -92,15 +124,17 @@ unhoused |>
 
 #### 1.2.1 Data takeaways
 
-* The month with the highest citation number since 2016 is Jan. 2021, with 797 citations. The month with the highest citation number since July 2023 is Feb. 2024 with 294 citations, closely followed by Jun. 2024 with 280 citations.
-* The month with the lowest citation number since 2016 is March 2022 with 29 citations. The month with the lowest citation number since July 2023 is July 2023, with 66 citations. This is followed by May 2023 with 87 citations.
+* Since 2016:
+  + The month with the highest citation number since 2016 is Jan. 2021, with 797 citations. The month with the lowest citation number since 2016 is March 2022 with 29 citations.
+* Since July 2023, 6 months before Whitmire's term began: 
+  + The month with the highest citation number since July 2023 is Sep. 2025 with 338 citations, followed by Aug. 2024 with 321 citations. The month with the lowest citation number since July 2023 is July 2023, with 66 citations. This is followed by May 2023 with 87 citations.
 
 ### 1.3 Avg monthly citation
 
 What is the average monthly citation count for each month from 2016 to 2024?
 
 ```{r}
-unhoused |> 
+unhoused_distinct |> 
   filter(off_yr < 2025) |> 
   group_by(off_yr,
            off_mo_label) |> 
@@ -108,12 +142,13 @@ unhoused |>
     yr_mo_off = n()
   ) |> 
   group_by(off_mo_label) |> 
-  summarise(avg_mo_off = round(mean(yr_mo_off), 1))
+  summarise(avg_mo_off = round(mean(yr_mo_off), 1)) |> 
+  arrange(desc(avg_mo_off))
 ```
 
 #### 1.3.1 Data takeaways
 
-* Considering every month from 2016 to 2024, the month with the highest average monthly citation count is January, with about 326 average monthly offenses, followed by May with about 308. The month with the lowest is November, with about 192 average monthly offenses, followed by December with about 201.
+* Considering every month from 2016 to 2024, the month with the highest average monthly citation count is January, with about 326 average monthly offenses, followed by May with about 307. The month with the lowest is November, with about 192 average monthly offenses, followed by December with about 201.
 
 ## 2. Citation types
 
@@ -122,7 +157,7 @@ unhoused |>
 Finding the most common violation types.
 
 ```{r}
-unhoused |> 
+unhoused_distinct |> 
   group_by(violation_code, violation_description) |> 
   summarise(violations = n()) |> 
   arrange(desc(violations))
@@ -132,56 +167,65 @@ unhoused |>
 
 There are seven types of violations that have been given since 2016. Here is what they mean and their frequency:
 
-1. **CC753 has 5 citations** Street vendor (separate)
+1. **CC753 has 21 citations** Street vendor (separate)
     i) Selling goods in public area: STREET VENDOR (EXPOSE FOR SALE) (SELL) GOODS, TO-WIT:...ON A PUBLIC (SIDEWALK) (STREET) (PROPERTY)
-2. **CC921 has 470 citations** Sidewalk
+2. **CC921 has 477 citations** Sidewalk
     i) Sidewalk obstruction: OBSTRUCT SIDEWALK BY (PLACING/DEPOSITING/PERMIT PERSON UNDER CONTROL) OBJECT (BOX/MAT./VEH./ETC.)
-3. **CC940 has 14880 citations** Civility
+3. **CC940 has 15,038 citations** Civility
     i) Sidewalk obstruction: SIT/LIE DOWN ON (BLANKET/STOOL) PLACED ON SIDEWALK B/W 7:00 AM AND 11:00 PM IN A PROHIBITED AREA
-4. **CC941 has 13477 citations** Civility
+4. **CC941 has 13,591 citations** Civility
     i) Sidewalk obstruction: PLACE (BED MAT./PERSONAL POSS.) ON SIDEWALK B/W THE HRS OF 7:00 A.M. & 11:00P.M. IN A PROHIBITED AREA
-5. **CC942 has 32 citations** Sidewalk
+5. **CC942 has 97 citations** Sidewalk
     i) 	Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK WITHOUT A PERMIT
-6. **CC943 has 2 citations** Sidewalk
+6. **CC943 has 5 citations** Sidewalk
     i) Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK BEYOND SCOPE OF PERMIT
-7. **CC948 has 72 citations** Sidewalk
+7. **CC948 has 229 citations** Sidewalk
     i) Sidewalk obstruction: PLACE OR ALLOW OBSTRUCTION ON SIDEWALK
-    **CC956** Separate
+8. **CC956 has 1 citation** Separate
+    i) EXPOSE FOR SALE MERCHANDISE, TO-WIT:...ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)
   
-The most common citation since 2016 is CC940 with 14,880 offenses, with CC941 as a runner-up at 13,477 offenses. The next most common is CC291 with only 470 offenses.
-
-@ NOTE: which ones of these do we want to classify as civility ordinances? All the ones with specific times? ask dominic then make flags/categories
+The most common citation since 2016 is CC940 with 15,038 offenses, with CC941 as a runner-up at 13,591 offenses. The next most common is CC291 with only 477 offenses.
 
 ### 2.2 Most common by year
 
 ```{r}
-unhoused |> 
+unhoused_distinct |> 
   group_by(off_yr,
            violation_code)|> 
   summarise(violations = n()) |> 
-  arrange(desc(off_yr))
+  arrange(desc(off_yr)) |> 
+  ggplot(aes(x = off_yr, y = violations, color = violation_code)) +
+  geom_line()
 ```
 
 #### 2.2.1 Data takeaways
 
-All five of the CC753 citations, all 32 of CC942 citations, both of the two CC943 citations and all 72 of CC948 citations have been given in 2025.
+* All 21 of the CC753 citations, all 97 of CC942 citations, all five of CC943 citations and all 229 of CC948 citations have been given in 2025.
 
 ## 3. Judgment and dispositions
 
 ### 3.1 Most common judgment
 
-What is the most common judgement?
+What is the most common judgment?
 
 ```{r}
-unhoused |> 
+unhoused |> # I'm not using unhoused_distinct here because i want to see the true judgment stats, even if there are repeated cases, those repeats each received their own judgment in court.
   group_by(judgment) |> 
   summarise(judgment_count = n()) |> 
-  arrange(desc(judgment_count)) # @make new column to standardize result variations
+  arrange(desc(judgment_count))
 ```
 
-#### 3.1.1 Data takeaway
+```{r}
+unhoused_distinct |> # I'm not using unhoused_distinct here because i want to see the true judgment stats, even if there are repeated cases, those repeats each received their own judgment in court.
+  group_by(judgment_refined) |> 
+  summarise(judgment_count = n()) |> #@ fix judgment_refined
+  arrange(desc(judgment_count))
+```
 
-* The most common judgment is "CASE DISMISSED - OFFICER NOT PRESENT" with 8,404 counts, followed by "CREDIT TIME SERVED" with 5,372 counts and "FAILURE TO APPEAR WARRANT (FTA)" with 4,986 counts.
+
+#### 3.1.1 Data takeaways
+
+* The most common judgment is "CASE DISMISSED - OFFICER NOT PRESENT" with 8,423 counts, followed by "CREDIT TIME SERVED" with 5,422 counts and "FAILURE TO APPEAR WARRANT (FTA)" with 5,103 counts.
 
 ### 3.2 Most common disposition
 
@@ -194,9 +238,9 @@ unhoused |>
   arrange(desc(disposition_count))
 ```
 
-#### 3.2.1 Data takeaway
+#### 3.2.1 Data takeaways
 
-* The most common disposition type is "UNDISPOSED" with 13,733 counts, followed by "DISMISSED AT TRIAL" with 9,360 counts and "GUILTY TRIAL BY JUDGE" with 5,593 counts.
+* The most common disposition type is "UNDISPOSED" with 14,295 counts, followed by "DISMISSED AT TRIAL" with 9,378 counts and "GUILTY TRIAL BY JUDGE" with 5,653 counts.
 
 ### 3.3 Yearly guilty cases
 
@@ -208,10 +252,10 @@ unhoused |>
          disposition == "GUILTY TRIAL BY JUDGE") |> 
   group_by(off_yr) |> 
   summarize(yearly_guilty = n()) |> 
-  arrange((yearly_guilty)) 
+  arrange((off_yr)) 
 ```
 
-#### 3.3.1 Data takeaway
+#### 3.3.1 Data takeaways
 
 * 2018 is the year with the lowest number of guilty dispositions at 50 dispositions.
 * 2016 is the year with the highest number of guilty dispositions at 1951 dispositions, followed by 2021 with 931.
@@ -220,38 +264,81 @@ unhoused |>
 
 Of all the individual months each year, what is the month with the most guilty dispositions percentage relative to all dispositions that month?
 
-Steps:
-
-What is monthly guilty count?
-What is total monthly disposition count?
-guilty/total * 100
+```{r}
+unhoused |> 
+  filter(judgment_date >= "2023-07-01") |> # i'm looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024.
+  group_by(jud_yr,
+           jud_mo_label) |> 
+  summarise(guilty = sum(disposition == "GUILTY TRIAL BY JUDGE"),
+            total = n(),
+            guilty_pct = round((guilty/total) * 100, 2)
+            ) |> 
+  arrange(desc(guilty))
+```
 
 ```{r}
 unhoused |> 
-  filter(judgment_date >= "2023-07-01") |> # i'm looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024. @ create flag for this
-  group_by(jud_yr,
-           jud_mo_label) |> 
-  summarise(guilty = n(disposition == "GUILTY TRIAL BY JUDGE")
-  # group_by(jud_yr,
-  #          jud_mo_label) |>
-  # summarise(guilty = n(disposition == "GUILTY TRIAL BY JUDGE"),
-  #           total = n())
+  mutate(jud_fl_mo = floor_date(judgment_date, unit = "month"),
+         guilty = if_else(disposition == "GUILTY TRIAL BY JUDGE", T, F)) |> 
+  filter(!is.na(jud_yr)) |> 
+  tabyl(jud_yr)
 ```
 
-#### 3.4.1 Data takeaway
 
-* Ever: The month with the guilty dispositions since 2016 is Aug. 2021, with 829 dispositions, followed by Apr. 2021 with 777. The month with the lowest guilty dispositions since 2016 is May 2020 with 5 dispositions.
-* Whitmire: The month with the highest guilty dispositions since July 2023 is May 2024 with 771 guilty dispositions, followed by Sep. 2025 with 704 citations. The month with the lowest guilty dispositions since July 2023 is Jul. 2023 with 104 dispositions, followed by Dec. 2024 with 136.
+#### 3.4.1 Data takeaways
+
+* Since 2016: 
+  + Percentages: The month with the highest percentage of guilty dispositions is Mar. 2021 at 78.82% and 160/203 guilty dispositions. 33 months had no guilty dispositions, many of which are in 2018-2020. The month with the lowest percentage of guilty dispositions that is above 0 is  Oct. 2018 at 0.75% and 1/134 guilty dispositions, closely followed by Oct. 2020 at 0.92% and 3/327 guilty dispositions.
+  + Dispositions: The month with the highest number of guilty dispositions since 2016 is Jun. 2016, with 197 dispositions, followed closely by Apr. 2016 with 196. The month with the lowest guilty dispositions since 2016 that is above zero is is Oct. 2018 with 1 disposition.
+* Since July 2023, 6 months before Whitmire's term began: 
+  + Percentages: The month with the highest percentage of guilty dispositions since July 2023 is Aug. 2023 at 40.32% and 75/186 guilty dispositions. All months since July 2023 have had above 0 guilty dispositions. The month with the lowest percentage of guilty dispositions since July 2023 is Jan. 2025 at 3.55% and 5/141 guilty dispositions, followed by May 2024 at 5.19% and 40/771 guilty dispositions.
+  + Dispositions: The month with the highest guilty dispositions since July 2023 is Aug. 2025 with 139 guilty dispositions, followed by Apr. 2025 with 113. The month with the lowest guilty dispositions since July 2023 is Jan. 2025 with 5 guilty dispositions, followed by Nov. 2024 with 14.
+  
+### 3.5 Avg monthly guilty
+
+What is the average percentage of guilty dispositions for each month since 2016?
+
+```{r}
+unhoused |> 
+  filter(judgment_date < "2025-01-01") |> # 2025 is not a complete year so that would skew later months' results
+  group_by(jud_yr,
+           jud_mo_label) |>
+  summarise(guilty = sum(disposition == "GUILTY TRIAL BY JUDGE"),
+            total = n(),
+            guilty_pct = (guilty/total) * 100
+            ) |>
+  group_by(jud_mo_label) |>
+  summarise(avg_guilty_pct = round(mean(guilty_pct), 2)) |> 
+  arrange(avg_guilty_pct)
+```
+
+#### 3.5.1 Data takeaways
+
+* Looking at an average of every month from 2016 to 2024, the month with the lowest average percentage of guilty dispositions is September at 14.02%, followed by December at 14.12%.
+* Looking at an average of every month from 2016 to 2024, the month with the highest average percentage of guilty dispositions is March at 24.86%, followed by January at 21.66%.
 
 ## 4. Top people
 
-### 4.1 Most citations
+### 4.1 Distinct people
+
+How many distinct people have received a citation?
+
+```{r}
+unhoused_distinct |> 
+  summarise(people_count = n_distinct(refined_name))
+```
+
+#### 4.1.1 Data takeaway
+
+* There are 4598 distinct people who have received a citation since 2016.
+
+### 4.2 Most citations
 
 Who has received the most citations? 
 
 ```{r}
-unhoused |> 
-  group_by(defendant_name) |> 
+unhoused_distinct |> 
+  group_by(refined_name) |> 
   summarise(citation_count = n(),
             first_citation = min(offense_date),
             last_citation = max(offense_date),
@@ -260,38 +347,34 @@ unhoused |>
   filter(citation_count >= 100)
 ```
 
-#### 4.1.1 Data takeaways
+#### 4.2.1 Data takeaways
 
-* There are 21 people who have received at least 100 total citations. 
-* The person with the most citations is Patricia Norris, who has received 782 total citations, all given between October 2017 and May 2025. 
-* The person with the second most citations is Rickey Garrett, who has received 289 total citations, all given between January 2020 and February 2024.
+* There are 26 people who have received at least 100 total citations. 
+* The person with the most citations is Patricia Norris, who has received 794 total citations, all given between October 2017 and May 2025. 
+* The person with the second most citations is Forest H Smith, who has received 336 total citations, all given between August 2020 and October 2025
 
-### 4.2 Most fines and dues
+### 4.3 Most fines and dues
 
-1. Who are the most heavily fined people? 
-    i) How much of those fines got dismissed? 
-    ii) How much did they pay? 
-    iii) How much do they still have due? 
-2. Who has paid the highest amount of dues?
+Who are the most heavily fined people? How much of those fines got dismissed? How much did they pay? How much do they still have due? Who has paid the highest amount of dues?
 
 ```{r}
-individual_fines <- unhoused |>
-  group_by(defendant_name) |>
+individual_fines <- unhoused_distinct |>
+  group_by(refined_name) |>
   summarise(total_fined = sum(amount_fined, na.rm = TRUE),
     total_fines_dismissed = sum(fines_dismissed, na.rm = TRUE),
     total_fines_paid = sum(fines_paid, na.rm = TRUE),
     total_fines_due = sum(fines_due, na.rm = TRUE)
-  )
-
-individual_fines |>
+  ) |>
   arrange(desc(total_fines_paid))
+
+individual_fines
 ```
 
-#### 4.2.1 Data takeaways
+#### 4.3.1 Data takeaways
 
-* Patricia Norris has been charged the highest total fines at around \$196,100. She hasn't paid any of her fines, but has had about \$146,200 dismissed, which leaves almost \$50,000 that she still owes. 
-* Rickey Garrett is the second most fined person, with around \$73,000 total fines. He has also never paid any of his fines, but has had all of them dismissed.
-* Bobby Anderson is the person who has paid the highest amount of fines. He's paid roughly \$24,900 out of around his total \$33,800. Roughly \$6,400 of that total has been dismissed, but he still owes about \$ 2,500.
+* Patricia Norris has been charged the highest total fines at around \$199,123. She hasn't paid any of her fines, but has had about \$149,118 dismissed, which leaves about \$50,006 that she still owes. 
+* Forest H Smith is the second most fined person, with around \$83,238 total fines. He has also never paid any of his fines, but has had roughly \$9,584 dismissed, leaving around \$73,654 that he still owes.
+* Kevin P Shakesnider is the person who has paid the highest amount of fines. He has paid about \$28,684 of his total \$44,453, and has had roughly \$10,438 dismissed. As of October 2025, he still owes about \$5,331.
 
 ## 5. Fines
 
@@ -300,14 +383,14 @@ individual_fines |>
 3. How many people have paid some/all of their fines?
 4. How many people have had some/all of their fines dismissed?
 
-### 5.1 People with citations
+### 5.1 Fined people
 
 How many distinct people are there who were fined?
 
 ```{r}
 individual_fines |> 
   filter(total_fined > 0) |> 
-  summarise(n())
+  summarise(fined_people = n())
 ```
 
 ### 5.2 Owed fines
@@ -324,13 +407,27 @@ individual_fines |>
 
 ### 5.3 Fines paid
 
-How many people have paid some/all of their fines?
+#### 5.3.1 Some fines paid
+
+How many people have paid at least some of their fines?
 
 ```{r}
 individual_fines |> 
   filter(total_fines_paid > 0) |> 
-  summarise(people_paid_fines = n(),
-            paid_fines_total = sum(total_fines_paid)
+  summarise(people_paid_some_fines = n(),
+            paid_fines_total = sum(total_fines_paid) 
+            )
+```
+
+#### 5.3.2 All fines paid - no dismissals
+
+How many people have paid all of their fines with no help from dismissals?
+
+```{r}
+individual_fines |> 
+  filter(total_fines_paid == total_fined) |> 
+  summarise(people_paid_all_fines = n(),
+            paid_fines_total = sum(total_fines_paid) 
             )
 ```
 
@@ -348,73 +445,133 @@ individual_fines |>
 
 ### 5.5 Data takeaways
 
-1. There are 6016 distinct people who have received a fine with their citation since 2016.
-2. Of the 6016 distinct people who have received a fine with their citation, 3351 of them still owe fines. The sum of total fines still owed to the city is about \$2,800,000.
-3. Of the 6016 distinct people who have received a fine with their citation, 1653 of them have paid at least some of their fines. 1,039 of those people have paid off all their fines without any help from dismissals. The total amount of fines paid since 2016 is about \$1,500,000.
-4. Of the 6016 distinct people who have received a fine with their citation, 2099 people have had at least some of their fines dismissed, and 1324 people had all of their fines dismissed.
+1. There are 4371 distinct people who have received a fine with their citation since 2016.
+2. Of the 4371 distinct people who have received a fine with their citation, 2889 of them still owe fines. The sum of total fines still owed to the city is \$2,919,485.
+3. Of the 4371 distinct people who have received a fine with their citation, 1222 of them have paid at least some of their fines. 789 of those people have paid off all their fines without any help from dismissals. The total amount of fines paid since 2016 is about \$1,485,249.
+4. Of the 4371 distinct people who have received a fine with their citation, 1459 people have had at least some of their fines dismissed, and 703 of those 1459 people had all of their fines dismissed.
 
 ## 6. Jail time
 
-### 6.1 All jail judgments
+### 6.1 Credit time served
 
-How many jail judgments have been given?
+#### 6.1.1 Distinct jailed judgments
 
-```{r}
-unhoused_jail <- unhoused |> # @ make a column rather than object then group_by
-  mutate(judgment = str_to_upper(str_trim(judgment)),
-         defendant_name = str_to_upper(str_trim(defendant_name))#, # @ do this in openrefine
-         #defendant_name = word(defendant_name, 1, 2) # @ sometimes there are middle names, causing each person to have two different rows, skewing the data. there's also an issue with name spelling variations, but idk how to counteract that since it's a ultimately only a guess whether it's a misspelling or a different person
-         ) |> 
-  filter(judgment == "CREDIT TIME SERVED") # @eliminates all other cases
-
-unhoused_jail |> glimpse()
-```
-
-#### 6.1.1 Data takeaway
-
-* A total of 5,372 jail judgments have been given, many of these were given to the same people. Some judgments were even given on the same judgment date to the same person for citations that were given throughout preceding dates.
-
-### 6.2 Jailed people
-
-How many individual people have been jailed? How many have been jailed more than once?
+How many individual people have received at least one CREDIT TIME SERVED judgment? Who has received the most CREDIT TIME SERVED judgments?
 
 ```{r}
-unhoused_jail |> 
-  distinct(defendant_name, judgment_date) |> 
-  group_by(defendant_name) |> # @tool called open refine to create new column to find these instances very well and we make decision.
-  summarise(times_served = n()) |> 
-  # filter(times_served > 1) |> 
-  arrange(desc(times_served))
+unhoused |> 
+  group_by(refined_name) |> 
+  summarise(credit_jail_judgments = sum(time_served == "yes")) |> 
+  filter(credit_jail_judgments > 0) |> 
+  arrange(desc(credit_jail_judgments))
 ```
 
-#### 6.2.1 Data takeaway
+#### 6.1.2 Distinct judgment dates
 
-* Of the ___ people who have received a citation since 2016, 1,474 of them have been jailed at least once. Of those who have been jailed, 208 people have been jailed more than once. 
-* The person with the highest jail count is Kevin Shakesnider, who has been jailed 21 individual times, but has received 92 offenses for which he served time (several were served under the same judgment date).
-* The person with the second highest jail count is Michael Burks at 12 counts.
+Who has received the most CREDIT TIME SERVED judgments on distinct judgment dates? 
 
-@ Kevin Shakesnider has different variations of the same spelling, and one entry has a middle name, so it counts it as a different person.
+**Explanation:** oftentimes, courts rule on several citations for the same person on one day. For example, Kevin Shakesnider didn't receive all 136 of his CREDIT TIME SERVED judgments on 136 separate days, he was assigned the same judgment date for several of his citations.
+
+```{r}
+unhoused |> 
+  filter(time_served == "yes") |> 
+  distinct(refined_name, judgment_date) |> 
+  group_by(refined_name) |> 
+  summarise(credit_jail_judgment_days = n()) |> 
+  #filter(credit_jail_judgment_days > 1) |> 
+  arrange(desc(credit_jail_judgment_days))
+```
+
+#### 6.1.3 Data takeaways
+
+* Of the 4,598 people who have received a citation since 2016, all 4,598 of them received a "CREDIT TIME SERVED" judgment at least once. Of those 4,598, 841 people have received more than one "CREDIT TIME SERVED" judgment.
+* The person with the highest credit_jail_judgments is Kevin P Shakesnider, who has received 136 individual "CREDIT TIME SERVED" judgments. Those 136 judgments were given across 22 distinct judgment dates.
+* The person with the second highest credit_jail_judgments count is BOBBY L ANDERSON JR, who has received 104 individual "CREDIT TIME SERVED" judgments. Those 104 judgments were given across 7 distinct judgment dates.
+
+### 6.2 Motion granted inmate
+
+#### 6.2.1 Individual jailed judgments
+
+How many individual people have received at least one MOTION GRANTED INMATE (FULL CREDIT) judgment? Who has received the most MOTION GRANTED INMATE (FULL CREDIT) judgments?
+
+```{r}
+unhoused |> 
+  group_by(refined_name) |> 
+  summarise(motion_jail_judgments = sum(judgment == "MOTION GRANTED INMATE (FULL CREDIT)")) |> 
+  filter(motion_jail_judgments > 0) |> 
+  arrange(desc(motion_jail_judgments))
+```
+
+#### 6.2.2 Distinct judgment dates
+
+Who has received the most MOTION GRANTED INMATE (FULL CREDIT) judgments on distinct judgment dates? 
+
+**Explanation:** oftentimes, courts decide on several citations for the same person on one day. For example, Kevin Shakesnider didn't receive all 136 of his CREDIT TIME SERVED judgments on 136 separate days, the courts gave him the same judgment date for several of his citations.
+
+```{r}
+unhoused |> 
+  filter(judgment == "MOTION GRANTED INMATE (FULL CREDIT)") |> 
+  distinct(refined_name, judgment_date) |> 
+  group_by(refined_name) |> 
+  summarise(motion_jail_judgment_days = n()) |> 
+  #filter(motion_jail_judgment_days > 1) |> 
+  arrange(desc(motion_jail_judgment_days))
+```
+
+#### 6.2.3 Data takeaway
+
+* Of the 4,598 people who have received a citation since 2016, 35 of them received a "MOTION GRANTED INMATE (FULL CREDIT)" judgment at least once. Of those 35, only one person has received more than one "MOTION GRANTED INMATE (FULL CREDIT)" judgment, and that is Robert F Living.
+* The person with the highest motion_jail_judgments is Melissa Clark, who has received 12 individual "MOTION GRANTED INMATE (FULL CREDIT)" judgments. Those 12 judgments were given one distinct judgment date.
+* Robert F Living is the only person with more than one "MOTION GRANTED INMATE (FULL CREDIT)" judgment day, at two judgment days. Between those two days, he received a total of four "MOTION GRANTED INMATE (FULL CREDIT)" judgments.
+
+### 6.3 Jail judgments over time
+
+What's the month with the most citations from 2016 to present? @ fix this
+
+```{r}
+unhoused |> 
+  filter(
+         judgment_date < "2025-10-01", # Oct. 2025 is not a complete month so i didn't include it
+         judgment == "CREDIT TIME SERVED"
+         ) |> # i'm looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024.
+  group_by(jud_yr,
+           jud_mo_label,
+           jud_mo) |> 
+  summarise(
+    yr_mo_jail = n()) |> 
+  arrange(desc(yr_mo_jail))
+  #arrange(jud_yr, jud_mo)
+```
+
+#### 6.3.1 Data takeaways
+
+* SINCE 2016:
+  + The month with the highest "CREDIT TIME SERVED" judgments since 2016 is Jun. 2016 with 185 judgments. 
+* SINCE JULY 2023:
+  + The month with the highest "CREDIT TIME SERVED" judgments since July 2023 is Aug. 2023 with 57 citations.
 
 ## 7. Individual people analysis
 
-### 7.1. Kevin Shakesnider
+### 7.1. Kevin P Shakesnider
 
-#### 7.1.1 Highest jail citations
+Shakesnider data takeaways refresher:
+* **Highest fines:** Kevin P Shakesnider is the person who has paid the highest amount of fines. He has paid about \$28,684 of his total \$44,453, and has had roughly \$10,438 dismissed. As of October 2025, he still owes about \$5,331.
+* **Highest "CREDIT TIME SERVED" judgments:** The person with the highest credit_jail_judgments is Kevin P Shakesnider, who has received 136 individual "CREDIT TIME SERVED" judgments. Those 136 judgments were given across 22 distinct judgment dates.
 
-When did Kevin Shakesnider receive the highest jail citations in one judgment? What is the overall date range?
+#### 7.1.1 Highest "CREDIT TIME SERVED" judgments
+
+When did Kevin P Shakesnider receive the highest jail citations in one judgment? What is the overall date range?
 
 ```{r}
-unhoused_jail |> # @ does dominic want to know people's path or the final thing?
-  filter(defendant_name == "SHAKESNIDER, KEVIN") |>
+unhoused_distinct |> 
+  filter(refined_name == "SHAKESNIDER, KEVIN P") |>
   group_by(judgment_date, violation_code) |>
  summarise(jail_count = n())
 ```
 
 ##### 7.1.1.1 Data takeaways
 
-All 21 of his judgment dates fall between Jan. 1 and Dec. 22 2016. On June 23, he received a "TIME SERVED" judgment for 16 citations, his highest in one single day.
-
-@ note: I see that there is also a Kevin P. Shakesnider with 30 more jailings, that sounds like the same guy but with an added middle initial. There are also Kevins with various spellings of the same last name. I know how to fix the middle name issue, but not sure how to approach misspellings.
+All 21 of his judgment dates fall between Jan. 1 and Dec. 22 2016. On June 23, he received a "CREDIT TIME SERVED" judgment for 16 citations, his highest in one single day.
 
 #### 7.1.2 Plotting
 
@@ -423,8 +580,8 @@ Plotting citations and violation type.
 ##### 7.1.2.1 Preparing object
 
 ```{r}
-shakesnider_jailed <- unhoused_jail |> 
-  filter(defendant_name == "SHAKESNIDER, KEVIN") |>
+shakesnider_jailed <- unhoused |> 
+  filter(refined_name == "SHAKESNIDER, KEVIN P") |>
   group_by(judgment_date, violation_code) |>
  summarise(jail_count = n())
 
@@ -438,7 +595,7 @@ ggplot(shakesnider_jailed,
        aes(x = judgment_date, y = jail_count, fill = violation_code)) +
   geom_col(position = "stack") +
   labs(
-    title = "Kevin Shakesnider's Jail Judgments Over Time",
+    title = "Kevin P Shakesnider's Jail Judgments Over Time",
     x = "Judgment Date",
     y = "Number of Citations",
     fill = "Violation Code"
@@ -446,7 +603,7 @@ ggplot(shakesnider_jailed,
   theme_minimal()
 ```
 
-###### 7.1.2.2.1 Data Takeaway
+###### 7.1.2.2.1 Data Takeaways
 
 @ NOTE: It doesn't sit right with me that the lines are so thin, but I can't think of a better way to visualize this.
 
@@ -458,7 +615,7 @@ Making Norris object.
 
 ```{r}
 norris <- unhoused |> 
-  filter(defendant_name == "NORRIS, PATRICIA")
+  filter(refined_name == "NORRIS, PATRICIA")
 
 norris
 ```
@@ -485,7 +642,17 @@ norris_citations <- norris |>
 norris_citations
 ```
 
-##### 7.2.2.1 Plotting.
+###### 7.2.2.1.1 Data takeaways
+
+* Each one of these points is a day, so the higher the citation count, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from 2020 to present. There have been some gaps between those dates, I wonder what those dates are.
+
+### 7.3 Bobby Anderson
+
+### 7.4 Rickey Garrett
+
+## 8. Plotting
+
+### 8.1 Patricia Norris
 
 ```{r}
 ggplot(norris_citations, 
@@ -499,59 +666,107 @@ ggplot(norris_citations,
   theme_minimal()
 ```
 
-###### 7.2.2.1.1 Data takeaway
-
-Each one of these points is a day, so the higher the citation count, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from 2020 to present. There have been some gaps between those dates, I wonder what those dates are.
-
-I'd also like to color code these points. A color for one each violation type, then another if she was hit with more than one violation type in a single day.
-
-### 7.3 Bobby Anderson
-
-### 7.4 Rickey Garrett
-
 ## 8. Geocode mapping
 
-### 8.1 Missing addresses
+### 8.1 Importing district data
 
-How many missing addresses are there?
+Importing Houston district data as an sf obejct.
 
 ```{r}
-sum(is.na(unhoused$longitude))
-sum(is.na(unhoused$latitude))
+hou_districts <- st_read(
+  "https://mycity2.houstontx.gov/pubgis02/rest/services/HoustonMap/Administrative_Boundary/MapServer/2/query?where=1=1&outFields=*&f=geojson"
+)
+
+hou_districts
 ```
 
-### 8.2 Preparing to map all addresses
+### 8.2 Simple feature
 
-Turning the addresses in a Simple Feature Collection
+Turning the addresses in a Simple Feature Collection.
 
 ```{r}
-unhoused_mapped <- unhoused |> 
-  filter(!is.na(geocodio_longitude) & !is.na(geocodio_latitude)) |>
-  st_as_sf(
-    coords = c("geocodio_longitude", "geocodio_latitude"),
-    crs = 4326
-  )
+pts <- st_as_sf(
+  unhoused_distinct,
+  coords = c("geocodio_longitude", "geocodio_latitude"),
+  crs = 4326
+)
+
+pts |> glimpse()
+```
+
+### 8.3 Reading council districts
+
+Loading Houston council maps.
+
+```{r}
+districts <- st_read(
+  "https://mycity2.houstontx.gov/pubgis02/rest/services/HoustonMap/Administrative_Boundary/MapServer/2/query?where=1=1&outFields=*&f=geojson"
+)
+```
+
+### 8.4 Fixing invalid district lines
+
+```{r}
+districts <- st_make_valid(districts) # this function goes through every polygon to fix problems like duplicate points and self intersections, which i was having trouble with.
+```
+
+```{r}
+districts <- st_transform(districts, 4326)
+```
+
+### 8.4 Citation to district
+
+Assigning each citation to a district.
+
+```{r}
+districting_citations <- st_join(pts, districts, join = st_within)
+
+districting_citations
+```
+
+### 8.5 Preparing to plot
+
+Grouping data by district, preparing to map.
+
+```{r}
+district_counts <- districting_citations |>
+  st_drop_geometry() |> # this removes the geometry so we can summarize citation points
+  group_by(DISTRICT) |>
+  summarize(citations = n())
+
+district_counts
+```
+
+Adding a new column for citations to each district polygon.
+
+```{r}
+unhoused_mapped <- districts |>
+  left_join(district_counts, by = "DISTRICT")
 
 unhoused_mapped
 ```
 
-### 8.3 Mapping
-
-Plotting a map of every address. This only represents the number of distinct addresses, not citations.
-
-Method 1: mapview()
+### 8.6 Plotting
 
 ```{r}
-unhoused_mapped |> mapview()
+ggplot(unhoused_mapped) +
+  geom_sf(aes(fill = citations), color = "white", size = 0.3) +
+  geom_sf_text(aes(label = DISTRICT), size = 4, color = "black") +
+  scale_fill_viridis_c(option = "plasma", na.value = "grey90") +
+  labs(
+    title = "Citations Given to unhoused people by Houston City Council district",
+    caption = "By Layla Dajani",
+    fill = "Citations",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  theme_minimal()
 ```
-
-Method 2: ggplot
+@ how did district change over time. Facet wrap for districts.
 
 ```{r}
-
+unhoused_mapped |> 
+  mapview()
 ```
-
-
-
 
 

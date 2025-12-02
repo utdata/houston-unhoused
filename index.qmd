@@ -6,8 +6,3 @@ This project is a project for the Media Innovation Group at the University of Te
 
 Analysis data takeaways:
 
-
-
-Graph and chart data takeaways:
-
-

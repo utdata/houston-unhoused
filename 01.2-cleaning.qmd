@@ -8,9 +8,10 @@ format: html
 2. Group by dates
 3. Add amount fined column
 4. Select columns
-5. Remove repeated rows
-6. Check for data date gaps
-7. Export clean data
+5. Remove duplicate rows
+6. Clean data using OpenRefine
+7. Create and select final columns
+8. Export clean data
 
 ## Setup
 
@@ -29,7 +30,7 @@ library(stringr)
 ## Importing
 
 ```{r}
-unhoused_geocoded <- read_csv("data-processed/unhoused_geocodio_combined.csv")
+unhoused_geocoded <- read_csv("data-processed/unhoused-geocodio-combined.csv")
 ```
 
 ## 1.Evaluating data cleanliness
@@ -162,92 +163,153 @@ unhoused_selected <- unhoused_fined |>
 unhoused_selected |> glimpse()
 ```
 
-## 5. @Duplicate rows
+## 5. Duplicate rows
 
 ### 5.1 Finding dupes
 
 ```{r}
 unhoused_selected |> 
-   get_dupes(!data_origin)
+   get_dupes(data_origin)
 ```
 
-### 5.2 No dupes
-
-Getting rid of those duplicates.
+### 5.2 Removing dupes
 
 ```{r}
-unhoused_clean <- unhoused_selected |>
-  distinct(across(!data_origin), .keep_all = TRUE) # this is originally how i had it to keep the data_origin column, but not consider it when looking for distinct rows
+unhoused_to_refine <- unhoused_selected |>
+  arrange(desc(data_origin)) |> # distinct() keeps the first row between two duplicates, so arranging it in descending order by data_origin, it makes sure we keep the most recent row
+  distinct(across(!c(
+    data_origin, 
+    defendant_address)),
+    .keep_all = TRUE)
+
+unhoused_to_refine |> glimpse()
+```
+
+## 6. OpenRefine
+
+Exporting cleaned data to clean more in OpenRefine. Steps accomplished in OpenRefine listed in the next step.
+
+### 6.1 Exporting for OpenRefine
+
+Exporting clean data to clean more in OpenRefine.
+
+```{r}
+unhoused_to_refine |> 
+  write_csv("data-processed/unhoused-to-refine.csv")
+```
+
+### 6.2 Importing from OpenRefine
+
+Importing data from OpenRefine. Here are the changes made:
+* Clustered misspelled names.
+* Created a column that standardizes some judgments more generally.
+* Created a column that standardizes some dispositions more generally.
+* Created a column indicated whether someone has served jail time.
+* Removed all 16 "test" rows.
+
+```{r}
+unhoused_refined <- read_csv("data-processed/unhoused-refined.csv")
+unhoused_refined |> glimpse()
+```
+
+## 7. Creating and selecting columns
+
+### 7.1 Whitmire flag
+
+I chose to separate these columns because there may be cases where a citation was given before Whitmire's term began, but didn't receive a judgment until after.
+
+#### 7.1.2 Offense date
+
+Creating a column indicating whether an offense occurred before or after Whitmire's term began.
+
+```{r}
+unhoused_whitmire_offense <- unhoused_refined |>
+  mutate(
+    whitmire_offense = if_else( #if_else function creates a new column based on its argument. it instructs that if the argument is true, use "before," if it's false, use "after." this makes sure we include Jan. 1 2024 in "after"
+      offense_date < as.Date("2024-01-01"),
+      "before",
+      "after"
+    )
+  )
+
+unhoused_whitmire_offense |> glimpse()
+```
+
+#### 7.1.2 Judgment date
+
+Creating a column indicating whether a judgment occurred before or after Whitmire's term began.
+
+```{r}
+unhoused_whitmire_judgment <- unhoused_whitmire_offense |>
+  mutate(
+    whitmire_judgment = if_else(
+      judgment_date < as.Date("2024-01-01"),
+      "before",
+      "after"
+    )
+  )
+
+unhoused_whitmire_judgment |> glimpse()
+```
+
+### 7.2 Selecting columns
+
+```{r}
+unhoused_clean <- unhoused_whitmire_judgment |> 
+  select(citation_number,
+         case_number,
+         offense_date,
+         refined_name,
+         defendant_address,
+         violation_code,
+         violation_description,
+         amount_fined,
+         fines_due,
+         fines_paid,
+         fines_dismissed,
+         judgment_date,
+         judgment,
+         judgment_refined,
+         disposition,
+         disposition_refined,
+         data_origin,
+         full_address,
+         geocodio_latitude,
+         geocodio_longitude,
+         geocodio_accuracy_score,
+         geocodio_accuracy_type,
+         geocodio_address_line_1,
+         geocodio_address_line_2,
+         geocodio_address_line_3,
+         geocodio_house_number,
+         geocodio_street,
+         geocodio_unit_type,
+         geocodio_unit_number,
+         geocodio_city,
+         geocodio_state,
+         geocodio_county,
+         geocodio_postal_code,
+         geocodio_country,
+         geocodio_source,
+         off_yr,
+         off_mo,
+         off_mo_label,
+         off_yday,
+         jud_yr,
+         jud_mo,
+         jud_mo_label,
+         jud_yday,
+         time_served,
+         whitmire_offense,
+         whitmire_judgment
+         )
 
 unhoused_clean |> glimpse()
 ```
 
-### 5.3 Problem
+## 8. Exporting
 
-Finding duplicate case numbers.
-
-```{r}
-unhoused_clean |> 
-  get_dupes(case_number) |> #@ not all of these are problematic, some just have different judgment dates and that makes sense. but many only differ by defendant_address, and sometimes it's only a difference of a comma
-
-  arrange(offense_date)
-```
-
-Highlighting a specific case I think is problematic.
-
-```{r}
-unhoused_clean |> 
-  filter(case_number == "N35532892-01 NT 2025") #@ of these three case_number dupes, the last row has a different judgment_date and judgment, but the first two rows are the same aside from the comma in defendant_address.
-```
-
-Proposed solution:
-
-```{r}
-unhoused_test <- unhoused_selected |>
-  distinct(across(!c(
-    data_origin,
-    defendant_address)), 
-    .keep_all = TRUE) #@ i think ignoring defendant_address in distinct() along with data_origin should take care of the issue. maybe i can get rid of defendant_address overall since we've already geocoded?
-
-unhoused_test |> glimpse()
-```
-
-Now looking at that same example case.
-
-```{r}
-unhoused_test |> 
-  filter(case_number == "N35532892-01 NT 2025")
-```
-
-## 6. Checking for data gaps
-
-### 6.1 Making a date ranges object
-
-Preparing the data
-
-```{r}
-unhoused_date_range <- unhoused_clean |> 
-  select(offense_date) |> 
-  arrange(offense_date)
-
-unhoused_date_range |> glimpse()
-```
-
-### 6.2 Plotting
-
-```{r}
-ggplot(unhoused_date_range, 
-       aes(x = offense_date, y = 1)) +
-  geom_point() +
-  labs(
-    title = "All Citations by Offense Date",
-    x = "Offense Date",
-    y = ""
-  ) +
-  theme_minimal()
-```
-
-## 7. Exporting
+Exporting entirely cleaned data for analysis.
 
 ```{r}
 unhoused_clean |> 
