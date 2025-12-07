@@ -5,11 +5,11 @@ format: html
 
 ## Goals for this notebook
 1. Evaluate data cleanliness
-2. Group by dates
-3. Add amount fined column
-4. Select columns
-5. Remove duplicate rows
-6. Clean data using OpenRefine
+2. Add amount fined column
+3. Select columns
+4. Remove duplicate rows
+5. Clean data using OpenRefine
+6. Group by dates
 7. Create and select final columns
 8. Export clean data
 
@@ -33,7 +33,7 @@ library(stringr)
 unhoused_geocoded <- read_csv("data-processed/unhoused-geocodio-combined.csv")
 ```
 
-## 1.Evaluating data cleanliness
+## 1. Evaluating data cleanliness
 
 ```{r}
 unhoused_geocoded |> glimpse()
@@ -84,28 +84,10 @@ unhoused_coalesce <- unhoused_dates |>
 unhoused_coalesce |> glimpse()
 ```
 
-## 2. Grouping by dates
+## 2. Adding amount fined column
 
 ```{r}
-unhoused_grouped_dates <- unhoused_coalesce |> 
-  mutate(
-    off_yr = year(offense_date), # offense year
-    off_mo = month(offense_date), # offense month in numbers
-    off_mo_label = month(offense_date, label = TRUE), # offense month written
-    off_yday = yday(offense_date), # offense day/365
-    jud_yr = year(judgment_date),
-    jud_mo = month(judgment_date),
-    jud_mo_label = month(judgment_date, label = TRUE),
-    jud_yday = yday(judgment_date)
-  ) 
-  
-unhoused_dates |> glimpse()
-```
-
-## 3. Adding amount fined column
-
-```{r}
-unhoused_fined <- unhoused_grouped_dates |>
+unhoused_fined <- unhoused_coalesce |>
   mutate(amount_fined = total_fine_amount_due +
                           total_fine_amount_paid +
                           total_fine_amount_dismissed)
@@ -113,66 +95,31 @@ unhoused_fined <- unhoused_grouped_dates |>
 unhoused_fined |> glimpse()
 ```
 
-## 4. Selecting columns
+## 3. Selecting columns
 
 ```{r}
 unhoused_selected <- unhoused_fined |> 
-  select(citation_number,
-         case_number,
-         offense_date,
-         defendant_name,
-         defendant_address,
-         violation_code,
-         violation_description,
-         amount_fined,
-         fines_due = total_fine_amount_due,
+  rename(fines_due = total_fine_amount_due,
          fines_paid = total_fine_amount_paid,
-         fines_dismissed = total_fine_amount_dismissed,
-         judgment_date,
-         judgment,
-         disposition,
-         data_origin,
-         full_address,
-         geocodio_latitude,
-         geocodio_longitude,
-         geocodio_accuracy_score,
-         geocodio_accuracy_type,
-         geocodio_address_line_1,
-         geocodio_address_line_2,
-         geocodio_address_line_3,
-         geocodio_house_number,
-         geocodio_street,
-         geocodio_unit_type,
-         geocodio_unit_number,
-         geocodio_city,
-         geocodio_state,
-         geocodio_county,
-         geocodio_postal_code,
-         geocodio_country,
-         geocodio_source,
-         off_yr,
-         off_mo,
-         off_mo_label,
-         off_yday,
-         jud_yr,
-         jud_mo,
-         jud_mo_label,
-         jud_yday
+         fines_dismissed = total_fine_amount_dismissed
+  ) |> 
+  select(!c(phone_number, 
+            offense_location)
          )
 
 unhoused_selected |> glimpse()
 ```
 
-## 5. Duplicate rows
+## 4. Remove duplicate rows
 
-### 5.1 Finding dupes
+### 4.1 Finding dupes
 
 ```{r}
 unhoused_selected |> 
    get_dupes(data_origin)
 ```
 
-### 5.2 Removing dupes
+### 4.2 Removing dupes
 
 ```{r}
 unhoused_to_refine <- unhoused_selected |>
@@ -185,11 +132,11 @@ unhoused_to_refine <- unhoused_selected |>
 unhoused_to_refine |> glimpse()
 ```
 
-## 6. OpenRefine
+## 5. OpenRefine
 
 Exporting cleaned data to clean more in OpenRefine. Steps accomplished in OpenRefine listed in the next step.
 
-### 6.1 Exporting for OpenRefine
+### 5.1 Exporting for OpenRefine
 
 Exporting clean data to clean more in OpenRefine.
 
@@ -198,7 +145,7 @@ unhoused_to_refine |>
   write_csv("data-processed/unhoused-to-refine.csv")
 ```
 
-### 6.2 Importing from OpenRefine
+### 5.2 Importing from OpenRefine
 
 Importing data from OpenRefine. Here are the changes made:
 * Clustered misspelled names.
@@ -208,8 +155,33 @@ Importing data from OpenRefine. Here are the changes made:
 * Removed all 16 "test" rows.
 
 ```{r}
-unhoused_refined <- read_csv("data-processed/unhoused-refined.csv")
-unhoused_refined |> glimpse()
+unhoused_open_refined <- read_csv("data-processed/unhoused-open-refined.csv")
+unhoused_open_refined |> glimpse()
+```
+
+## 6. Grouping by dates
+
+```{r}
+unhoused_grouped_dates <- unhoused_open_refined |> 
+  mutate(
+    off_yr = year(offense_date), # offense year
+    off_mo = month(offense_date), # offense month in numbers
+    off_mo_label = month(offense_date, label = TRUE), # offense month written
+    off_yday = yday(offense_date), # offense day/365
+    off_floor_mo = floor_date(offense_date, unit = "month"), # floor month
+    off_floor_yr = floor_date(offense_date, "year"), # floor year
+    jud_yr = year(judgment_date),
+    jud_mo = month(judgment_date),
+    jud_mo_label = month(judgment_date, label = TRUE),
+    jud_yday = yday(judgment_date),
+    jud_floor_mo = floor_date(judgment_date, unit = "month"),
+    jud_floor_yr = floor_date(judgment_date, "year")
+  ) 
+  
+unhoused_grouped_dates |> glimpse()
+```
+```{r}
+levels(unhoused_grouped_dates$off_mo_label)
 ```
 
 ## 7. Creating and selecting columns
@@ -223,12 +195,12 @@ I chose to separate these columns because there may be cases where a citation wa
 Creating a column indicating whether an offense occurred before or after Whitmire's term began.
 
 ```{r}
-unhoused_whitmire_offense <- unhoused_refined |>
+unhoused_whitmire_offense <- unhoused_grouped_dates |>
   mutate(
     whitmire_offense = if_else( #if_else function creates a new column based on its argument. it instructs that if the argument is true, use "before," if it's false, use "after." this makes sure we include Jan. 1 2024 in "after"
       offense_date < as.Date("2024-01-01"),
-      "before",
-      "after"
+      "BEFORE WHITMIRE",
+      "AFTER WHITMIRE"
     )
   )
 
@@ -244,65 +216,39 @@ unhoused_whitmire_judgment <- unhoused_whitmire_offense |>
   mutate(
     whitmire_judgment = if_else(
       judgment_date < as.Date("2024-01-01"),
-      "before",
-      "after"
+      "BEFORE WHITMIRE",
+      "AFTER WHITMIRE"
     )
   )
 
 unhoused_whitmire_judgment |> glimpse()
 ```
 
-### 7.2 Selecting columns
+### 7.2 Violation tag
+
+Making a column to tag whether a citation falls under a civility ordinance vs sidewalk obstruction.
 
 ```{r}
-unhoused_clean <- unhoused_whitmire_judgment |> 
-  select(citation_number,
-         case_number,
-         offense_date,
-         refined_name,
-         defendant_address,
-         violation_code,
-         violation_description,
-         amount_fined,
-         fines_due,
-         fines_paid,
-         fines_dismissed,
-         judgment_date,
-         judgment,
-         judgment_refined,
-         disposition,
-         disposition_refined,
-         data_origin,
-         full_address,
-         geocodio_latitude,
-         geocodio_longitude,
-         geocodio_accuracy_score,
-         geocodio_accuracy_type,
-         geocodio_address_line_1,
-         geocodio_address_line_2,
-         geocodio_address_line_3,
-         geocodio_house_number,
-         geocodio_street,
-         geocodio_unit_type,
-         geocodio_unit_number,
-         geocodio_city,
-         geocodio_state,
-         geocodio_county,
-         geocodio_postal_code,
-         geocodio_country,
-         geocodio_source,
-         off_yr,
-         off_mo,
-         off_mo_label,
-         off_yday,
-         jud_yr,
-         jud_mo,
-         jud_mo_label,
-         jud_yday,
-         time_served,
-         whitmire_offense,
-         whitmire_judgment
-         )
+unhoused_citation_tag <- unhoused_whitmire_judgment |> 
+  mutate(
+    citation_type = ifelse(
+      violation_code == "CC940" | violation_code == "CC941", "CIVILITY ORDINANCE",
+      ifelse(
+        violation_code == "CC921" | violation_code == "CC942" | violation_code == "CC943" | violation_code == "CC948", "SIDEWALK OBSTRUCTION ORDINANCE",
+        ifelse(
+          violation_code == "CC753" | violation_code == "CC956", "OTHER",
+          "OTHER"
+  ))))
+
+unhoused_citation_tag |> glimpse()
+```
+
+
+### 7.2 Final clean
+
+```{r}
+unhoused_clean <- unhoused_citation_tag |> 
+  rename(ordinance_type = citation_type)
 
 unhoused_clean |> glimpse()
 ```

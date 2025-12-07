@@ -1,8 +1,92 @@
 ---
-title: "houston-unhoused"
+title: "Houston Unhoused"
 ---
+
+## Index
+
+1. About this data
+2. Limitations and considerations
+3. Quick facts
+4. Analysis summary
+
+## 1. About this data
 
 This project is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media. 
 
-Analysis data takeaways:
+It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan. 1 2016 to Oct. @ 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.
+
+John Whitmire became Houston mayor in Jan. 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences between before and after his term began. 
+
+There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other. 
+
+## 2. Limitations and considerations
+
+* OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations.
+* Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, I will create an object that does not have duplicate rows. In that object, I will keep the second appearance because that provides the most updated data.
+
+## 3. Quick facts
+
+## 4. Summary
+
+#### 4.1 Citation count over time
+
+Looking six months before Whitmire's term began, Sept. 2025 saw the highest citation numbers in that date range, at 338. The monthly citation count from May to Sept. 2025 seems to be on an upward climb.
+
+@ insert figure 2.2.1.1
+
+Looking back even further, Sept. 2025 has had the highest citation numbers since since June 2021. However, to put that in the larger context, Sept. 2025 only had 42.4% of the Jan. 2021 citation count, which is the highest citation month in this data set. 
+
+@ insert figure 2.2.2.1
+
+See more about citation counts over time in section 2 of the analysis notebook.
+
+#### 4.2 Violation types
+
+There are seven types of violations that have been given since 2016. Here is what they mean and their frequency:
+
+1. **CC753 has 21 citations,** a street vendor ordinance
+    i) Selling goods in public area: STREET VENDOR (EXPOSE FOR SALE) (SELL) GOODS, TO-WIT:...ON A PUBLIC (SIDEWALK) (STREET) (PROPERTY)
+2. **CC921 has 477 citations,** a sidewalk obstruction ordinance
+    i) Sidewalk obstruction: OBSTRUCT SIDEWALK BY (PLACING/DEPOSITING/PERMIT PERSON UNDER CONTROL) OBJECT (BOX/MAT./VEH./ETC.)
+3. **CC940 has 15,038 citations,** a civility ordinance
+    i) Sidewalk obstruction: SIT/LIE DOWN ON (BLANKET/STOOL) PLACED ON SIDEWALK B/W 7:00 AM AND 11:00 PM IN A PROHIBITED AREA
+4. **CC941 has 13,591 citations,** a civility ordinance
+    i) Sidewalk obstruction: PLACE (BED MAT./PERSONAL POSS.) ON SIDEWALK B/W THE HRS OF 7:00 A.M. & 11:00P.M. IN A PROHIBITED AREA
+5. **CC942 has 97 citations,** a sidewalk obstruction ordinance
+    i) 	Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK WITHOUT A PERMIT
+6. **CC943 has 5 citations,** a sidewalk obstruction ordinance
+    i) Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK BEYOND SCOPE OF PERMIT
+7. **CC948 has 229 citations,** a sidewalk obstruction ordinance
+    i) Sidewalk obstruction: PLACE OR ALLOW OBSTRUCTION ON SIDEWALK
+8. **CC956 has 1 citation,** a street vendor ordinance
+    i) EXPOSE FOR SALE MERCHANDISE, TO-WIT:...ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)
+
+CC940 and CC941 monthly citation numbers follow similar trends throughout the year (Analysis 3.3.2), suggesting they are given out at the same rate. 
+
+After Whitmire introduced three new sidewalk obstruction ordinances this year, Sept. 2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.
+
+@ insert figure 3.3.2 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
