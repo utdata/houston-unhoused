@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>houston-unhoused – Short site name</title>
+<title>Houston Unhoused – Short site name</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -124,26 +124,30 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Analysis</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">About</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#index" id="toc-index" class="nav-link active" data-scroll-target="#index">Index</a></li>
+  <li><a href="#about-this-data" id="toc-about-this-data" class="nav-link" data-scroll-target="#about-this-data">1. About this data</a></li>
+  <li><a href="#limitations-and-considerations" id="toc-limitations-and-considerations" class="nav-link" data-scroll-target="#limitations-and-considerations">2. Limitations and considerations</a></li>
+  <li><a href="#quick-facts" id="toc-quick-facts" class="nav-link" data-scroll-target="#quick-facts">3. Quick facts</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">4. Summary</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">houston-unhoused</h1>
+<h1 class="title">Houston Unhoused</h1>
 </div>
 
 
@@ -160,10 +164,86 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="index" class="level2">
+<h2 class="anchored" data-anchor-id="index">Index</h2>
+<ol type="1">
+<li>About this data</li>
+<li>Limitations and considerations</li>
+<li>Quick facts</li>
+<li>Analysis summary</li>
+</ol>
+</section>
+<section id="about-this-data" class="level2">
+<h2 class="anchored" data-anchor-id="about-this-data">1. About this data</h2>
 <p>This project is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media.</p>
-<p>Analysis data takeaways:</p>
+<p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1 2016 to Oct.&nbsp;@ 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
+<p>John Whitmire became Houston mayor in Jan.&nbsp;2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences between before and after his term began.</p>
+<p>There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other.</p>
+</section>
+<section id="limitations-and-considerations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-and-considerations">2. Limitations and considerations</h2>
+<ul>
+<li>OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations.</li>
+<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, I will create an object that does not have duplicate rows. In that object, I will keep the second appearance because that provides the most updated data.</li>
+</ul>
+</section>
+<section id="quick-facts" class="level2">
+<h2 class="anchored" data-anchor-id="quick-facts">3. Quick facts</h2>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">4. Summary</h2>
+<section id="citation-count-over-time" class="level4">
+<h4 class="anchored" data-anchor-id="citation-count-over-time">4.1 Citation count over time</h4>
+<p>Looking six months before Whitmire’s term began, Sept.&nbsp;2025 saw the highest citation numbers in that date range, at 338. The monthly citation count from May to Sept.&nbsp;2025 seems to be on an upward climb.</p>
+<p>@ insert figure 2.2.1.1</p>
+<p>Looking back even further, Sept.&nbsp;2025 has had the highest citation numbers since since June 2021. However, to put that in the larger context, Sept.&nbsp;2025 only had 42.4% of the Jan.&nbsp;2021 citation count, which is the highest citation month in this data set.</p>
+<p>@ insert figure 2.2.2.1</p>
+<p>See more about citation counts over time in section 2 of the analysis notebook.</p>
+</section>
+<section id="violation-types" class="level4">
+<h4 class="anchored" data-anchor-id="violation-types">4.2 Violation types</h4>
+<p>There are seven types of violations that have been given since 2016. Here is what they mean and their frequency:</p>
+<ol type="1">
+<li><strong>CC753 has 21 citations,</strong> a street vendor ordinance
+<ol type="i">
+<li>Selling goods in public area: STREET VENDOR (EXPOSE FOR SALE) (SELL) GOODS, TO-WIT:…ON A PUBLIC (SIDEWALK) (STREET) (PROPERTY)</li>
+</ol></li>
+<li><strong>CC921 has 477 citations,</strong> a sidewalk obstruction ordinance
+<ol type="i">
+<li>Sidewalk obstruction: OBSTRUCT SIDEWALK BY (PLACING/DEPOSITING/PERMIT PERSON UNDER CONTROL) OBJECT (BOX/MAT./VEH./ETC.)</li>
+</ol></li>
+<li><strong>CC940 has 15,038 citations,</strong> a civility ordinance
+<ol type="i">
+<li>Sidewalk obstruction: SIT/LIE DOWN ON (BLANKET/STOOL) PLACED ON SIDEWALK B/W 7:00 AM AND 11:00 PM IN A PROHIBITED AREA</li>
+</ol></li>
+<li><strong>CC941 has 13,591 citations,</strong> a civility ordinance
+<ol type="i">
+<li>Sidewalk obstruction: PLACE (BED MAT./PERSONAL POSS.) ON SIDEWALK B/W THE HRS OF 7:00 A.M. &amp; 11:00P.M. IN A PROHIBITED AREA</li>
+</ol></li>
+<li><strong>CC942 has 97 citations,</strong> a sidewalk obstruction ordinance
+<ol type="i">
+<li>Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK WITHOUT A PERMIT</li>
+</ol></li>
+<li><strong>CC943 has 5 citations,</strong> a sidewalk obstruction ordinance
+<ol type="i">
+<li>Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK BEYOND SCOPE OF PERMIT</li>
+</ol></li>
+<li><strong>CC948 has 229 citations,</strong> a sidewalk obstruction ordinance
+<ol type="i">
+<li>Sidewalk obstruction: PLACE OR ALLOW OBSTRUCTION ON SIDEWALK</li>
+</ol></li>
+<li><strong>CC956 has 1 citation,</strong> a street vendor ordinance
+<ol type="i">
+<li>EXPOSE FOR SALE MERCHANDISE, TO-WIT:…ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)</li>
+</ol></li>
+</ol>
+<p>CC940 and CC941 monthly citation numbers follow similar trends throughout the year (Analysis 3.3.2), suggesting they are given out at the same rate.</p>
+<p>After Whitmire introduced three new sidewalk obstruction ordinances this year, Sept.&nbsp;2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.</p>
+<p>@ insert figure 3.3.2</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -238,7 +318,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/utdata\.github\.io\/houston-unhoused\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
