@@ -124,7 +124,7 @@ yearly_ggplot <- ggplot(
   geom_line(size = 1.2) +
   geom_point() +
   labs(
-    title = "Yearly citations from Jan. 2016 to Dec. 2024. ",
+    title = "Yearly citations fluctuate from 2016 to 2024 ",
     caption = "By Layla Dajani",
     x = "Year",
     y = "Offenses per year"
@@ -176,7 +176,7 @@ monthly_citations_plot <- ggplot(monthly_citations,
                                 "AFTER WHITMIRE" = "red")
                      ) +
   labs(
-    title = "Monthly citations of unhoused people in Houston from Jul. 2023 to Sept. 2025",
+    title = "June to Sept. 2025 indicate an upward climb compared to previous months",
     x = "Date",
     y = "Citations per month",
   ) +
@@ -223,8 +223,7 @@ monthly_citations_all_ggplot <- ggplot(monthly_citations_all,
                                 "AFTER WHITMIRE" = "red")
                      ) +
   labs(
-    title = "Monthly citations of unhoused people in Houston from Jan. 2016 to Sept. 2025.",
-    subtitle = "",
+    title = "Sept. 2025 had month with the highest citation count in over four years, but that is ",
     x = "Year",
     y = "Citations per month",
     color = ""
@@ -266,7 +265,7 @@ ggplot(
   geom_line(size = 1.1) +
   geom_point(size = 1.3) +
   labs(
-    title = "Monthly citations averaged from Jan. 2016 to Dec. 2024.",
+    title = "Monthly citations averaged from Jan. 2016 to Dec. 2024",
     subtitle = str_wrap(""),
     caption = "Graphic by Layla Dajani",
     x = "Month",
@@ -330,7 +329,7 @@ unhoused_distinct |>
     aes(x = off_floor_yr, y = violations, color = violation_code)) +
   geom_line() +
   labs(
-    title = "Number of citations by year from Jan. 2016 to Dec. 2024.",
+    title = "Number of citations by year broken down by violation code from Jan. 2016 to Dec. 2024",
     subtitle = "",
     caption = "By Layla Dajani",
     fill = "Citations",
@@ -342,7 +341,7 @@ unhoused_distinct |>
 
 #### 3.2.1 Data takeaways
 
-* All 21 of the CC753 citations, all 97 of CC942 citations, all five of CC943 citations and all 229 of CC948 citations have been given in 2025.
+* All 21 of the CC753 citations, all 97 of CC942 citations, all five of CC943 citations and all 229 of CC948 citations have been given in 2025. CC940 and CC941 seem to follow very similar trends.
 
 ### 3.3 Most common by month
 
@@ -369,11 +368,11 @@ types_by_month_plot <- ggplot(
   geom_line() +
   geom_point(size = 0.4) +
   labs(
-    title = "Number of citations by year from Jan. 2016 to Dec. 2024.",
+    title = "Number of citations by year broken down by violation code from Jan. 2016 to Dec. 2024",
     subtitle = "",
     caption = "By Layla Dajani",
-    x = "Citations per year",
-    y = "Year"
+    x = "Year",
+    y = "Citations per year"
       ) +
 theme_minimal()
 
@@ -383,7 +382,7 @@ types_by_month_plot |>
 
 ### 3.3.3 Data takeaways
 
-* CC940 and CC941 lines follow similar patterns, suggesting they have been given out at the same rate. But starting July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new ordinance citations increased.
+* This further suggests CC940 and CC941 lines follow similar patterns, indicating they have been given out at the same rate. But starting July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new ordinance citations increased.
 
 ### 3.3 Ordinance types over time
 
@@ -430,7 +429,7 @@ types_over_time_plot |>
 
 #### 3.3.3 Data takeaways
 
-Sept. 2025 had highest sidewalk obstruction citations per month since Jan. 2016. The 127 citations made up around 38% of all citations given that month.
+Sept. 2025 had highest sidewalk obstruction citations per month since Jan. 2016. The 127 citations made up around 38% of the total citations from that month.
 
 ## 4. Judgment and dispositions
 
