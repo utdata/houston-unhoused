@@ -15,7 +15,11 @@ This project is a project for the Media Innovation Group at the University of Te
 
 It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan. 1 2016 to Oct. @ 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.
 
+> crit: you can do unhoused$offense_date |> summary() to find max date.
+
 John Whitmire became Houston mayor in Jan. 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences between before and after his term began. 
+
+> crit: ^^ great context
 
 There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other. 
 
@@ -23,6 +27,8 @@ There are seven types of violations that have been given since 2016, all of whic
 
 * OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations.
 * Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, I will create an object that does not have duplicate rows. In that object, I will keep the second appearance because that provides the most updated data.
+
+> crit: Watch language in second point. Just needs some editing. Not 'I will create'.
 
 ## 3. Quick facts
 
@@ -34,6 +40,9 @@ Looking six months before Whitmire's term began, Sept. 2025 saw the highest cita
 
 @ insert figure 2.2.1.1
 
+> crit: you might need to experiement, but I think you can link directly to the section through its .qmd file. [See here](https://quarto.org/docs/websites/index.html#linking).
+> for instance, I _think_ that [monthly citations](02-analysis.qmd#2.2.1.1 Plotting - for summary) _might_ work. Maybe.
+
 Looking back even further, Sept. 2025 had the highest citation numbers since since June 2021. However, to put that in the larger context, Sept. 2025 only had 42.4% of the Jan. 2021 citation count, which is the highest citation month in this data set. 
 
 @ insert figure 2.2.2.1
@@ -41,6 +50,8 @@ Looking back even further, Sept. 2025 had the highest citation numbers since sin
 See more about citation counts over time in section 2 of the analysis notebook.
 
 #### 4.2 Violation types
+
+> crit: this is too much detail for this page. summarize and link to details.
 
 There are seven types of violations that have been given since 2016. Here is what they mean and their frequency:
 
