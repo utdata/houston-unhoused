@@ -176,7 +176,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="about-this-data" class="level2">
 <h2 class="anchored" data-anchor-id="about-this-data">1. About this data</h2>
 <p>This project is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media.</p>
-<p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1 2016 to Oct.&nbsp;@ 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
+<p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1 2016 to Oct.&nbsp;28 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
 <p>John Whitmire became Houston mayor in Jan.&nbsp;2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences between before and after his term began.</p>
 <p>There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other.</p>
 </section>
@@ -184,7 +184,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="limitations-and-considerations">2. Limitations and considerations</h2>
 <ul>
 <li>OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations.</li>
-<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, I will create an object that does not have duplicate rows. In that object, I will keep the second appearance because that provides the most updated data.</li>
+<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, an object that does not have duplicate rows will be created at the beginning of the Analysis notebook. In that object, the second appearance of each case will be kept because that provides the most updated data.</li>
 </ul>
 </section>
 <section id="quick-facts" class="level2">
@@ -202,7 +202,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="violation-types" class="level4">
 <h4 class="anchored" data-anchor-id="violation-types">4.2 Violation types</h4>
-<p>There are seven types of violations that have been given since 2016. Here is what they mean and their frequency:</p>
+<p>There are seven types of violations that have been given since 2016. Here is what they mean and their frequency: <span class="citation" data-cites="summarize">@summarize</span> this and link to the more detailed information.</p>
 <ol type="1">
 <li><strong>CC753 has 21 citations,</strong> a street vendor ordinance
 <ol type="i">
