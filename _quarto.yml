@@ -1,7 +1,6 @@
 project:
   type: website
   render:
-  - "!01.1-pregeocoding.qmd"
   - "01*.qmd"
   - "*.qmd"
 
