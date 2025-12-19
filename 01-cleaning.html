@@ -931,7 +931,7 @@ $ geocodio_source               &lt;chr&gt; "TIGER/LINE® FROM THE US CENSUS BUR
 <h2 class="anchored" data-anchor-id="fixing-and-grouping-dates">6. Fixing and grouping dates</h2>
 <section id="fixing-data-types" class="level3">
 <h3 class="anchored" data-anchor-id="fixing-data-types">6.1 Fixing data types</h3>
-<p>Changing offense_date and judgment_date data types from “dttm” to “date.”</p>
+<p>Changing offense_date and judgment_date data types from <dttm> to <date>.</date></dttm></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>unhoused_data_types <span class="ot">&lt;-</span> unhoused_refined <span class="sc">|&gt;</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">offense_date =</span> <span class="fu">as_date</span>(offense_date),</span>
