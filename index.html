@@ -181,13 +181,13 @@ ul.task-list li input[type="checkbox"] {
 <p>This project is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media.</p>
 <p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1, 2016 to Oct.&nbsp;28, 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
 <p>John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences before and after his term began.</p>
-<p>There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other. See a more detailed breakdown of each violation code in <a href="02-analysis.html#3">section 3</a> of the analysis notebook.</p>
+<p>There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other. See a more detailed breakdown of each violation code in <a href="02-analysis.html#violation-types">section 3</a> of the analysis notebook.</p>
 </section>
 <section id="limitations-and-considerations" class="level2">
 <h2 class="anchored" data-anchor-id="limitations-and-considerations">2. Limitations and considerations</h2>
 <ul>
-<li>OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations. See <a href="01-cleaning.html#5.2">section 5.2</a> of the cleaning notebook for more details on what OpenRefine was used for.</li>
-<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, an object that does not have duplicate rows will be created in <a href="02-analysis#1">section 1</a> of the analysis notebook. In that object, the second appearance of each case will be kept because that provides the most updated data.</li>
+<li>OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations. See <a href="01-cleaning.html#importing-from-open-refine">section 5.2</a> of the cleaning notebook for more details on what OpenRefine was used for.</li>
+<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, an object that does not have duplicate rows will be created in <a href="02-analysis#creating-distinct-object">section 1</a> of the analysis notebook. In that object, the second appearance of each case will be kept because that provides the most updated data.</li>
 <li>2025 only includes data through November 20. Despite this, analysis often includes November as an incomplete month. It is important to note that the data available for November 2025 is not representative of the whole month. Additionally, when averages in monthly calendar or yearly charts are made, the lack of complete data from November and December 2025 may skew these results.</li>
 <li>Cases from recent months are yet to receive a judgment. Therefore, recent months may not be representative of judgment statistics.</li>
 </ul>
@@ -205,7 +205,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Between July 2023 (six months before Whitmire’s term began) and November 2025, October 2025 had the highest citation count in that date range, at 490 that month. Leading up to that, the monthly citation count from May to October indicates an incline. Looking back even further, October 2025 had the highest citation count in over four years.</p>
 <p>However, to put that in the larger context, October 2025 only had 61.5% of the January 2021 citation count, which is the highest citation month in this data set.</p>
 <p><img src="figures/monthly_citations_all_plot.png" class="img-fluid"></p>
-<p>See more about citation counts over time in <a href="02-analysis.html#2">section 2</a> of the analysis notebook.</p>
+<p>See more about citation counts over time in <a href="02-analysis.html#citation-numbers-over-time">section 2</a> of the analysis notebook.</p>
 </section>
 <section id="violations-typess" class="level4">
 <h4 class="anchored" data-anchor-id="violations-typess">3.2 Violations typess</h4>
@@ -229,33 +229,33 @@ ul.task-list li input[type="checkbox"] {
 <li>EXPOSE FOR SALE MERCHANDISE, TO-WIT:…ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)</li>
 </ol></li>
 </ol>
-<p>CC940 and CC941 monthly citation numbers follow similar trends throughout the years (<a href="02-analysis.html#3.3.1.2">analysis 3.3.1.2</a>), suggesting they have been given out at similar rates. They are also the most frequent violation codes in this data set (<a href="02-analysis.html#3.1">analysis 3.1</a>). But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased.</p>
+<p>CC940 and CC941 monthly citation numbers follow similar trends throughout the years (<a href="02-analysis.html#plotting-3-3-1-2">analysis 3.3.1.2</a>), suggesting they have been given out at similar rates. They are also the most frequent violation codes in this data set (<a href="02-analysis.html#most-common">analysis 3.1</a>). But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased.</p>
 <p><img src="figures/types-by-month-22-plot.png" class="img-fluid"></p>
-<p>This is further displayed in <a href="02-analysis.html#3.3.3.2">analysis 3.3.3.2</a>.</p>
+<p>This is further displayed in <a href="02-analysis.html#plotting-3-3-3-2">analysis 3.3.3.2</a>.</p>
 <p>Following Whitmire’s introduction three new sidewalk obstruction ordinances this year, October 2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.</p>
 <p><img src="figures/types-over-time-plot.png" class="img-fluid"></p>
-<p>See more about violation codes in <a href="02-analysis.html#3">section 3</a> of the analysis notebook.</p>
+<p>See more about violation codes in <a href="02-analysis.html#violation-types">section 3</a> of the analysis notebook.</p>
 </section>
 <section id="patricia-norris" class="level3">
 <h3 class="anchored" data-anchor-id="patricia-norris">3.3 Patricia Norris</h3>
 <p>Of all the estimated distinct people in this data set, Patricia Norris has been charged the highest total fines at around $199,123. She hasn’t paid any of her fines, but has had about $149,118 dismissed, which leaves about $50,006 that she still owes.</p>
 <p>In the chart below, each one of the points is a day, so the higher her citation count on the chart, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from January 2020 to May 2025.</p>
 <p><img src="figures/norris_citations_plot.png" class="img-fluid"></p>
-<p>See more about Norris in <a href="02-analysis#8.2">section 8.2</a> of the analysis notebook.</p>
+<p>See more about Norris in <a href="02-analysis#patricia-norris">section 8.2</a> of the analysis notebook.</p>
 </section>
 </section>
 <section id="also-of-interest" class="level2">
 <h2 class="anchored" data-anchor-id="also-of-interest">4. Also of interest</h2>
 <ul>
-<li><a href="02-analysis.html#4.1.4">See 4.1.4</a> for a breakdown of common judgments, and <a href="02-analysis.html#4.2.1">4.2.1</a> for dispositions.</li>
-<li><a href="02-analysis.html#5.1.1">See 5.1.1</a> for how many distinct people have received citations in this data set.</li>
-<li><a href="02-analysis.html#5.2.1">See 5.2.1</a> for who has received the most citations in this data set.</li>
-<li><a href="02-analysis.html#5.3.1">See 5.3.1</a> for the names of people who were most fined and who paid off the most fines.
+<li><a href="02-analysis.html#data-takeaways-4-1-4">See 4.1.4</a> for a breakdown of common judgments, and <a href="02-analysis.html#data-takeaways-4-2-1">4.2.1</a> for dispositions.</li>
+<li><a href="02-analysis.html#data-takeaways-5-1-1">See 5.1.1</a> for how many distinct people have received citations in this data set.</li>
+<li><a href="02-analysis.html#data-takeaways-5-2-1">See 5.2.1</a> for who has received the most citations in this data set.</li>
+<li><a href="02-analysis.html#data-takeaways-5-3-1">See 5.3.1</a> for the names of people who were most fined and who paid off the most fines.
 <ul>
-<li><a href="02-analysis.html#5.3">5.3</a> has a searchable chart for further information, including how many citations each person received.</li>
+<li><a href="02-analysis.html#most-fines-and-dues">5.3</a> has a searchable chart for further information, including how many citations each person received.</li>
 </ul></li>
-<li><a href="02-analysis.html#6.6">See 6.6</a> for a general breakdown of fine distributions.</li>
-<li><a href="02-analysis.html#9.2">See 9.2</a> for a breakdown of citations per zone, including charts that show zone distributions by year.</li>
+<li><a href="02-analysis.html#data-takeaways-6-6">See 6.6</a> for a general breakdown of fine distributions.</li>
+<li><a href="02-analysis.html#plotting">See 9.2</a> for a breakdown of citations per zone, including charts that show zone distributions by year.</li>
 </ul>
 
 
