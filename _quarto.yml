@@ -1,16 +1,15 @@
 project:
   type: website
   render:
-  - "!01.1-geocoding.qmd"
   - "01*.qmd"
   - "*.qmd"
 
 website:
-  title: "Short site name"
+  title: "Houston Unhoused"
   sidebar:
     contents:
       - href: index.qmd
-        text: Home
+        text: Overview
       - auto: "*.qmd"
 
 format:

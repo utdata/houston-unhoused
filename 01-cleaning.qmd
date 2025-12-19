@@ -1,0 +1,396 @@
+---
+title: "Cleaning"
+format: html
+---
+
+## Goals of this notebook
+
+1. Import all data
+2. Merge all sheets
+3. Remove duplicate rows
+4. Geocode
+5. Clean names in OpenRefine
+6. Fix date data types and group by dates
+7. Create and rename final columns
+8. Export clean data
+
+## Setup
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(readxl)
+```
+
+## 1. Importing
+
+Data set 1.
+
+```{r}
+unhoused_raw_1 <- suppressWarnings(read_excel("data-raw/unhoused-raw-1.xlsx"))
+```
+
+Data set 2.
+
+```{r}
+unhoused_raw_2 <- suppressWarnings(read_excel("data-raw/unhoused-raw-2.xlsx"))
+```
+
+Data set 3.
+
+```{r}
+unhoused_raw_3 <- suppressWarnings(read_excel("data-raw/unhoused-raw-3.xlsx"))
+```
+
+Data set 4.
+
+```{r}
+unhoused_raw_4 <- suppressWarnings(read_excel("data-raw/unhoused-raw-4.xlsx"))
+```
+
+## 2. Merging data sets
+
+### 2.1 Evaluating merge readiness
+
+Ensuring column names match.
+
+```{r}
+unhoused_raw_1 |> glimpse()
+unhoused_raw_2 |> glimpse()
+unhoused_raw_3 |> glimpse()
+unhoused_raw_4 |> glimpse()
+```
+
+### 2.3 Cleaning names
+
+#### 2.3.1 Data set 1
+
+```{r}
+unhoused_names_1 <- unhoused_raw_1 |> 
+  rename(defendant_address = Defendent_Address) |> # this was misspelled
+  clean_names()
+
+unhoused_names_1 |> glimpse()
+```
+
+#### 2.3.2 Data set 2
+
+```{r}
+unhoused_names_2 <- unhoused_raw_2 |> 
+  clean_names()
+
+unhoused_names_2 |> glimpse()
+```
+
+#### 2.3.3 Data set 3
+
+```{r}
+unhoused_names_3 <- unhoused_raw_3 |> 
+  clean_names()
+
+unhoused_names_3 |> glimpse()
+```
+
+#### 2.3.4 Data set 4
+
+```{r}
+unhoused_names_4 <- unhoused_raw_4 |> 
+  clean_names()
+
+unhoused_names_4 |> glimpse()
+```
+
+### 2.4 Preparing to merge
+
+#### 2.4.1 Data set 1
+
+Fixing phone_number data type, fixing misspellings and adding data_origin column to data set 1.
+
+```{r}
+unhoused_tidy_1 <- unhoused_names_1 |>
+  mutate(phone_number = as.character(phone_number),
+         data_origin = "unhoused_1"
+         ) |> 
+  rename(total_fine_amount_due = totla_fine_amount_due,
+         total_fine_amount_paid = totla_fine_amount_paid,
+         total_fine_amount_dismissed = totla_fine_amount_dismissed)
+
+unhoused_tidy_1 |> glimpse()
+```
+
+#### 2.4.2 Data set 2
+
+Adding data_origin column to data set 2 and renaming columns to match data set 1.
+
+```{r}
+unhoused_tidy_2 <- unhoused_names_2 |> 
+  mutate(data_origin = "unhoused_2") |> 
+  rename(phone_number = defendant_phone_number)
+
+unhoused_tidy_2 |> glimpse()
+```
+
+#### 2.4.3 Data set 3
+
+Adding data_origin column to data set 3 and renaming columns to match the other data sets.
+
+```{r}
+unhoused_tidy_3 <- unhoused_names_3 |> 
+  mutate(data_origin = "unhoused_3") |> 
+  rename(phone_number = defendant_phone_number)
+
+unhoused_tidy_3 |> glimpse()
+```
+
+#### 2.4.4 Data set 4
+
+Fixing phone_number data type and adding data_origin column to data set 4. Renaming columns to match the other data sets.
+
+```{r}
+unhoused_tidy_4 <- unhoused_names_4 |> 
+  rename(phone_number = defendant_phone_number) |> 
+  mutate(phone_number = as.character(phone_number),
+         data_origin = "unhoused_4")
+
+unhoused_tidy_4 |> glimpse()
+```
+
+### 2.5 Merging sheets
+
+Merging sheets.
+
+```{r}
+unhoused_merged <- bind_rows(unhoused_tidy_1, unhoused_tidy_2, unhoused_tidy_3, unhoused_tidy_4)
+
+unhoused_merged |> glimpse()
+```
+
+## 3. Remove duplicate rows
+
+### 3.1 Finding dupes
+
+This shows both duplicates, so there are actually 89 (178/2) pairs of duplicates.
+
+```{r}
+unhoused_merged |> 
+   get_dupes(!c(data_origin, defendant_address))
+```
+
+### 3.2 Removing dupes
+
+Proof it worked: subtract the number of duplicate pairs (89) from the total number of rows (30,611), that is how many rows are outputted below (30,522).
+
+```{r}
+unhoused_to_geocode <- unhoused_merged |>
+  arrange(desc(data_origin)) |> # distinct() keeps the first row between two duplicates, so arranging it in descending order by data_origin, it makes sure we keep the most recent row
+  distinct(across(!c(
+    data_origin, 
+    defendant_address)),
+    .keep_all = TRUE)
+
+unhoused_to_geocode |> glimpse()
+```
+
+## 4. Geocoding
+
+### 4.1 Preparing to geocode
+
+Reformatting addresses to prepare to geocode externally using geocodeio.
+
+```{r}
+unhoused_geo_prep <- unhoused_to_geocode |>
+  mutate(full_address = paste(str_remove(offense_location, ","),
+                              "Houston, TX", sep = ", "))
+
+unhoused_geo_prep |> glimpse()
+```
+
+### 4.2 Exporting pre-geocode
+
+Exporting the data to geocode in geocodio.
+
+```{r}
+unhoused_geo_prep |>
+  write_csv("data-processed/unhoused-pregeocoded.csv")
+```
+
+### 4.3 Importing geocoded
+
+Importing the geocoded data from geocodio and cleaning column names.
+
+```{r}
+unhoused_geocoded <- read_csv("data-processed/unhoused-geocoded.csv") |> 
+  clean_names() # the new geocoded columns didn't have clean names
+
+unhoused_geocoded |> glimpse()
+```
+
+## 5. OpenRefine
+
+Exporting cleaned data to clean further in OpenRefine. Everything accomplished in OpenRefine is listed in section 5.2.
+
+### 5.1 Exporting for OpenRefine
+
+Exporting clean data to clean more in OpenRefine.
+
+```{r}
+unhoused_to_refine <- unhoused_geocoded |> 
+  write_csv("data-processed/unhoused-to-refine.csv")
+
+unhoused_to_refine |> glimpse()
+```
+
+### 5.2 Importing from OpenRefine {#importing-from-open-refine}
+
+Importing data from OpenRefine. Here are the changes made:
+
+* Clustered misspelled and varied names.
+* Created a column that standardizes some judgments more generally.
+* Created a column that standardizes some dispositions more generally.
+* Created a column indicating whether someone has served jail time.
+* Removed all 16 "test" rows.
+* Trimmed all leading and trailing whitespace for all columns.
+* Made all cell entries uppercase.
+* Created a column that standardizes violation descriptions, because starting in October 2025, CC940 and 941 have different violation descriptions than they previously did.
+
+```{r}
+unhoused_refined <- read_csv("data-processed/unhoused-refined.csv")
+unhoused_refined |> glimpse()
+```
+
+## 6. Fixing and grouping dates
+
+### 6.1 Fixing data types
+
+Changing offense_date and judgment_date data types from <dttm> to <date>.
+
+```{r}
+unhoused_data_types <- unhoused_refined |>
+  mutate(offense_date = as_date(offense_date),
+         judgment_date = as_date(judgment_date),
+        )
+
+unhoused_data_types |> glimpse()
+```
+
+### 6.2 Grouping by date
+
+```{r}
+unhoused_grouped_dates <- unhoused_data_types |> 
+  mutate(off_yr = year(offense_date), # offense year
+         off_mo = month(offense_date), # offense month in numbers
+         off_mo_label = month(offense_date, label = TRUE), # offense month written
+         off_yday = yday(offense_date), # offense day/365
+         off_floor_mo = floor_date(offense_date, unit = "month"), # floor month
+         off_floor_yr = floor_date(offense_date, "year"), # floor year
+         jud_yr = year(judgment_date),
+         jud_mo = month(judgment_date),
+         jud_mo_label = month(judgment_date, label = TRUE),
+         jud_yday = yday(judgment_date),
+         jud_floor_mo = floor_date(judgment_date, unit = "month"),
+         jud_floor_yr = floor_date(judgment_date, "year")
+         )
+
+unhoused_grouped_dates |> glimpse()
+```
+
+## 7. Creating and renaming final columns
+
+Creating columns to indicate whether a case is form before/after Whitmire's term began, what type of violation ordinance a violation code is, and a column detailing the amount fined. The final step also renames and selects final columns.
+
+### 7.1 Whitmire flag
+
+Whitmire's term began in January 2024. These columns are separated into offense and judgment because there may be cases where a citation was given before Whitmire's term began, but didn't receive a judgment until after.
+
+#### 7.1.2 Offense date
+
+Creating a column indicating whether an offense occurred before or after Whitmire's term began.
+
+```{r}
+unhoused_whitmire_offense <- unhoused_grouped_dates |>
+  mutate(
+    whitmire_offense = if_else( #if_else function creates a new column based on its argument. it instructs that if the argument is true, use "before," if it's false, use "after." this makes sure we include Jan. 1 2024 in "after"
+      offense_date < as.Date("2024-01-01"),
+      "BEFORE WHITMIRE",
+      "AFTER WHITMIRE"
+    )
+  )
+
+unhoused_whitmire_offense |> glimpse()
+```
+
+#### 7.1.2 Judgment date
+
+Creating a column indicating whether a judgment occurred before or after Whitmire's term began.
+
+```{r}
+unhoused_whitmire_judgment <- unhoused_whitmire_offense |>
+  mutate(
+    whitmire_judgment = if_else(
+      judgment_date < as.Date("2024-01-01"),
+      "BEFORE WHITMIRE",
+      "AFTER WHITMIRE"
+    )
+  )
+
+unhoused_whitmire_judgment |> glimpse()
+```
+
+### 7.2 Violation flag
+
+Making a column to tag whether a citation falls under a civility ordinance vs sidewalk obstruction ordinance.
+
+```{r}
+unhoused_citation_tag <- unhoused_whitmire_judgment |> 
+  mutate(
+    ordinance_type = ifelse(
+      violation_code == "CC940" | violation_code == "CC941", "CIVILITY",
+      ifelse(
+        violation_code == "CC921" | violation_code == "CC942" | violation_code == "CC943" | violation_code == "CC948", "SIDEWALK",
+        ifelse(
+          violation_code == "CC753" | violation_code == "CC956", "OTHER",
+          "OTHER"
+  ))))
+
+unhoused_citation_tag |> glimpse()
+```
+
+### 7.3 Amount fined
+
+```{r}
+unhoused_fined <- unhoused_citation_tag |>
+  mutate(amount_fined = total_fine_amount_due +
+                        total_fine_amount_paid +
+                        total_fine_amount_dismissed)
+
+unhoused_fined |> glimpse()
+```
+
+### 7.4 Renaming and selecting columns
+
+Making the final clean object.
+
+```{r}
+unhoused_renamed <- unhoused_fined |> 
+  select(!c(offense_location)) |> # this column was reworked into full_address, which was used to geocode. offense_location is no longer needed because full_offense_location replaces it
+  rename(fines_due = total_fine_amount_due  ,
+         fines_paid = total_fine_amount_paid,
+         fines_dismissed = total_fine_amount_dismissed,
+         full_offense_location = full_address)
+
+unhoused_renamed |> glimpse()
+```
+
+## 8. Exporting
+
+Exporting entirely cleaned data for analysis.
+
+```{r}
+unhoused_clean <- unhoused_renamed |> 
+  write_csv("data-processed/unhoused-clean.csv")
+```
