@@ -114,7 +114,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./01.2-cleaning.html" class="sidebar-item-text sidebar-link">
+  <a href="./01-cleaning.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Cleaning</span></a>
   </div>
 </li>
@@ -137,8 +137,11 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#index" id="toc-index" class="nav-link active" data-scroll-target="#index">Index</a></li>
   <li><a href="#about-this-data" id="toc-about-this-data" class="nav-link" data-scroll-target="#about-this-data">1. About this data</a></li>
   <li><a href="#limitations-and-considerations" id="toc-limitations-and-considerations" class="nav-link" data-scroll-target="#limitations-and-considerations">2. Limitations and considerations</a></li>
-  <li><a href="#quick-facts" id="toc-quick-facts" class="nav-link" data-scroll-target="#quick-facts">3. Quick facts</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">4. Summary</a></li>
+  <li><a href="#visualizations" id="toc-visualizations" class="nav-link" data-scroll-target="#visualizations">3. Visualizations</a>
+  <ul class="collapse">
+  <li><a href="#patricia-norris" id="toc-patricia-norris" class="nav-link" data-scroll-target="#patricia-norris">3.3 Patricia Norris</a></li>
+  </ul></li>
+  <li><a href="#also-of-interest" id="toc-also-of-interest" class="nav-link" data-scroll-target="#also-of-interest">4. Also of interest</a></li>
   </ul>
 </nav>
     </div>
@@ -169,80 +172,93 @@ ul.task-list li input[type="checkbox"] {
 <ol type="1">
 <li>About this data</li>
 <li>Limitations and considerations</li>
-<li>Quick facts</li>
-<li>Analysis summary</li>
+<li>Visualizations</li>
+<li>Also of interest</li>
 </ol>
 </section>
 <section id="about-this-data" class="level2">
 <h2 class="anchored" data-anchor-id="about-this-data">1. About this data</h2>
 <p>This project is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media.</p>
-<p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1 2016 to Oct.&nbsp;28 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
-<p>John Whitmire became Houston mayor in Jan.&nbsp;2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences between before and after his term began.</p>
-<p>There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other.</p>
+<p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1, 2016 to Oct.&nbsp;28, 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
+<p>John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences before and after his term began.</p>
+<p>There are seven types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also four new violation types that were only introduced in 2025, three of which are sidewalk obstructions, the fourth is other. See a more detailed breakdown of each violation code in section 3 of the analysis notebook.</p>
 </section>
 <section id="limitations-and-considerations" class="level2">
 <h2 class="anchored" data-anchor-id="limitations-and-considerations">2. Limitations and considerations</h2>
 <ul>
 <li>OpenRefine was used to cluster misspelled and varied names. Each decision was made manually based on calculated judgment calls, which may portray people with more/less citations than they actually received. It may also impact how many individual people are estimated to have received citations.</li>
-<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, an object that does not have duplicate rows will be created at the beginning of the Analysis notebook. In that object, the second appearance of each case will be kept because that provides the most updated data.</li>
+<li>Some citations have duplicate case numbers because the second appearance tracks how the case developed. So, to confidently know that each row does represent an individual citation, an object that does not have duplicate rows will be created at the beginning of the analysis notebook. In that object, the second appearance of each case will be kept because that provides the most updated data.</li>
+<li>2025 only includes data through November 20. Despite this, analysis often includes November as an incomplete month. It is important to note that the data available for November 2025 is not representative of the whole month. Additionally, when averages in monthly calendar or yearly charts are made, the lack of complete data from November and December 2025 may skew these results.</li>
+<li>Cases from recent months are yet to receive a judgment. Therefore, recent months may not be representative of judgment statistics.</li>
 </ul>
 </section>
-<section id="quick-facts" class="level2">
-<h2 class="anchored" data-anchor-id="quick-facts">3. Quick facts</h2>
-</section>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">4. Summary</h2>
-<section id="citation-count-over-time" class="level4">
-<h4 class="anchored" data-anchor-id="citation-count-over-time">4.1 Citation count over time</h4>
-<p>Looking six months before Whitmire’s term began, Sept.&nbsp;2025 saw the highest citation numbers in that date range, at 338. The monthly citation count from May to Sept.&nbsp;2025 seems to be on an upward climb.</p>
-<p>@ insert figure 2.2.1.1</p>
-<p>Looking back even further, Sept.&nbsp;2025 had the highest citation numbers since since June 2021. However, to put that in the larger context, Sept.&nbsp;2025 only had 42.4% of the Jan.&nbsp;2021 citation count, which is the highest citation month in this data set.</p>
-<p>@ insert figure 2.2.2.1</p>
+<section id="visualizations" class="level2">
+<h2 class="anchored" data-anchor-id="visualizations">3. Visualizations</h2>
+<p>Find interactive versions of each visualization in the analysis notebook in that chart’s corresponding section. Interactive versions offer details for specific points or elements on a chart. For instance:</p>
+<ul>
+<li>Hover the mouse over data points to view more details about it.</li>
+<li>Left click and drag the mouse to select particular parts of a visualization to expand.</li>
+<li>Select and deselect elements from the legend to view or hide parts of the chart.</li>
+</ul>
+<section id="citation-counts-over-time" class="level4">
+<h4 class="anchored" data-anchor-id="citation-counts-over-time">3.1 Citation counts over time</h4>
+<p>Between July 2023 (six months before Whitmire’s term began) to November 2025, October 2025 saw the highest citation numbers in that date range, at 490. Leading up to that, The monthly citation count from May to October seems to be on an upward climb. Looking back even further, October 2025 had the highest citation count in over four years.</p>
+<p>However, to put that in the larger context, October 2025 only had 61.5% of the January 2021 citation count, which is the highest citation month in this data set.</p>
+<p><img src="figures/monthly_citations_all_plot.png" class="img-fluid"></p>
 <p>See more about citation counts over time in section 2 of the analysis notebook.</p>
 </section>
-<section id="violation-types" class="level4">
-<h4 class="anchored" data-anchor-id="violation-types">4.2 Violation types</h4>
-<p>There are seven types of violations that have been given since 2016. Here is what they mean and their frequency: <span class="citation" data-cites="summarize">@summarize</span> this and link to the more detailed information.</p>
+<section id="violations-typess" class="level4">
+<h4 class="anchored" data-anchor-id="violations-typess">3.2 Violations typess</h4>
+<p>There are seven types of violation codes that have been given since 2016:</p>
 <ol type="1">
-<li><strong>CC753 has 21 citations,</strong> a street vendor ordinance
-<ol type="i">
-<li>Selling goods in public area: STREET VENDOR (EXPOSE FOR SALE) (SELL) GOODS, TO-WIT:…ON A PUBLIC (SIDEWALK) (STREET) (PROPERTY)</li>
-</ol></li>
-<li><strong>CC921 has 477 citations,</strong> a sidewalk obstruction ordinance
+<li><strong>CC753:</strong> selling goods in public area</li>
+<li><strong>CC921:</strong> a sidewalk obstruction ordinance
 <ol type="i">
 <li>Sidewalk obstruction: OBSTRUCT SIDEWALK BY (PLACING/DEPOSITING/PERMIT PERSON UNDER CONTROL) OBJECT (BOX/MAT./VEH./ETC.)</li>
 </ol></li>
-<li><strong>CC940 has 15,038 citations,</strong> a civility ordinance
-<ol type="i">
-<li>Sidewalk obstruction: SIT/LIE DOWN ON (BLANKET/STOOL) PLACED ON SIDEWALK B/W 7:00 AM AND 11:00 PM IN A PROHIBITED AREA</li>
-</ol></li>
-<li><strong>CC941 has 13,591 citations,</strong> a civility ordinance
-<ol type="i">
-<li>Sidewalk obstruction: PLACE (BED MAT./PERSONAL POSS.) ON SIDEWALK B/W THE HRS OF 7:00 A.M. &amp; 11:00P.M. IN A PROHIBITED AREA</li>
-</ol></li>
-<li><strong>CC942 has 97 citations,</strong> a sidewalk obstruction ordinance
-<ol type="i">
-<li>Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK WITHOUT A PERMIT</li>
-</ol></li>
-<li><strong>CC943 has 5 citations,</strong> a sidewalk obstruction ordinance
-<ol type="i">
-<li>Sidewalk obstruction: IMPAIR OR OBSTRUCT SIDEWALK BEYOND SCOPE OF PERMIT</li>
-</ol></li>
-<li><strong>CC948 has 229 citations,</strong> a sidewalk obstruction ordinance
+<li><strong>CC940:</strong> person obstructing sidewalk by sitting/laying down between 7 a.m. and 11 p.m.</li>
+<li><strong>CC941:</strong> obstructing sidewalk with bed mat or personal possessions between 7 a.m. and 11 p.m.</li>
+<li><strong>CC942:</strong> impair or obstruct sidewalk without a permit</li>
+<li><strong>CC943:</strong> impair or obstruct sidewalk beyond scope of permit</li>
+<li><strong>CC948:</strong> place or allow obstruction on sidewalk
 <ol type="i">
 <li>Sidewalk obstruction: PLACE OR ALLOW OBSTRUCTION ON SIDEWALK</li>
 </ol></li>
-<li><strong>CC956 has 1 citation,</strong> a street vendor ordinance
+<li><strong>CC956:</strong> a street vendor ordinance
 <ol type="i">
 <li>EXPOSE FOR SALE MERCHANDISE, TO-WIT:…ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)</li>
 </ol></li>
 </ol>
-<p>CC940 and CC941 monthly citation numbers follow similar trends throughout the year (Analysis 3.3.2), suggesting they are given out at the same rate.</p>
-<p>After Whitmire introduced three new sidewalk obstruction ordinances this year, Sept.&nbsp;2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.</p>
-<p>@ insert figure 3.3.2</p>
-
-
+<p>CC940 and CC941 monthly citation numbers follow similar trends throughout the years (analysis 3.3.2), suggesting they have been given out at similar rates. They are also the most frequent violation codes in this data set (analysis 3.1). But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased.</p>
+<p><img src="figures/types-by-month-22-plot.png" class="img-fluid"></p>
+<p>This is further displayed in analysis 3.3.2.</p>
+<p>Following Whitmire’s introduction three new sidewalk obstruction ordinances this year, October 2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.</p>
+<p><img src="figures/types-over-time-plot.png" class="img-fluid"></p>
+<p>See more about violation codes in section 3 of the analysis notebook.</p>
 </section>
+<section id="patricia-norris" class="level3">
+<h3 class="anchored" data-anchor-id="patricia-norris">3.3 Patricia Norris</h3>
+<p>Of all the estimated distinct people in this data set, Patricia Norris has been charged the highest total fines at around $199,123. She hasn’t paid any of her fines, but has had about $149,118 dismissed, which leaves about $50,006 that she still owes.</p>
+<p>In the chart below, each one of the points is a day, so the higher her citation count on the chart, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from January 2020 to May 2025.</p>
+<p><img src="figures/norris_citations_plot.png" class="img-fluid"></p>
+<p>See more about Norris in section 8.2 of the analysis notebook.</p>
+</section>
+</section>
+<section id="also-of-interest" class="level2">
+<h2 class="anchored" data-anchor-id="also-of-interest">4. Also of interest</h2>
+<ul>
+<li>See 4.1.4 for a breakdown of common judgments, and 4.2.4 for dispositions.</li>
+<li>See 5.1.1 for how many distinct people have received citations in this data set.</li>
+<li>See 5.2.1 for who has received the most citations in this data set.</li>
+<li>See 5.3.1 for the names of people who were most fined and who paid off the most fines.
+<ul>
+<li>5.3 has a searchable chart for further information, including how many citations each person received.</li>
+</ul></li>
+<li>See 6.6 for a general breakdown of fine distributions.</li>
+<li>See 9.2 for a breakdown of citations per zone, including charts that show zone distributions by year.</li>
+</ul>
+
+
 </section>
 
 </main> <!-- /main -->
