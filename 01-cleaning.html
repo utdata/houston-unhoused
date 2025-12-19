@@ -195,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#openrefine" id="toc-openrefine" class="nav-link" data-scroll-target="#openrefine">5. OpenRefine</a>
   <ul class="collapse">
   <li><a href="#exporting-for-openrefine" id="toc-exporting-for-openrefine" class="nav-link" data-scroll-target="#exporting-for-openrefine">5.1 Exporting for OpenRefine</a></li>
-  <li><a href="#importing-from-openrefine" id="toc-importing-from-openrefine" class="nav-link" data-scroll-target="#importing-from-openrefine">5.2 Importing from OpenRefine</a></li>
+  <li><a href="#5.2" id="toc-5.2" class="nav-link" data-scroll-target="#5.2">5.2 Importing from OpenRefine</a></li>
   </ul></li>
   <li><a href="#fixing-and-grouping-dates" id="toc-fixing-and-grouping-dates" class="nav-link" data-scroll-target="#fixing-and-grouping-dates">6. Fixing and grouping dates</a>
   <ul class="collapse">
@@ -241,11 +241,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Import all data</li>
 <li>Merge all sheets</li>
 <li>Remove duplicate rows</li>
-<li>Geocoding</li>
-<li>Fix date data types and group by dates</li>
+<li>Geocode</li>
 <li>Clean names in OpenRefine</li>
-<li>Create new columns</li>
-<li>Select and rename final columns</li>
+<li>Fix date data types and group by dates</li>
+<li>Create and rename final columns</li>
 <li>Export clean data</li>
 </ol>
 </section>
@@ -854,9 +853,19 @@ $ geocodio_source             &lt;chr&gt; "TIGER/Line® from the US Census Burea
 </div>
 </div>
 </section>
-<section id="importing-from-openrefine" class="level3">
-<h3 class="anchored" data-anchor-id="importing-from-openrefine">5.2 Importing from OpenRefine</h3>
-<p>Importing data from OpenRefine. Here are the changes made: * Clustered misspelled and varied names. * Created a column that standardizes some judgments more generally. * Created a column that standardizes some dispositions more generally. * Created a column indicating whether someone has served jail time. * Removed all 16 “test” rows. * Trimmed all leading and trailing whitespace for all columns. * Made all cell entries uppercase. * Created a column that standardizes violation descriptions, because starting in October 2025, CC940 and 941 have different violation descriptions than they previously did.</p>
+<section id="5.2" class="level3">
+<h3 class="anchored" data-anchor-id="5.2">5.2 Importing from OpenRefine</h3>
+<p>Importing data from OpenRefine. Here are the changes made:</p>
+<ul>
+<li>Clustered misspelled and varied names.</li>
+<li>Created a column that standardizes some judgments more generally.</li>
+<li>Created a column that standardizes some dispositions more generally.</li>
+<li>Created a column indicating whether someone has served jail time.</li>
+<li>Removed all 16 “test” rows.</li>
+<li>Trimmed all leading and trailing whitespace for all columns.</li>
+<li>Made all cell entries uppercase.</li>
+<li>Created a column that standardizes violation descriptions, because starting in October 2025, CC940 and 941 have different violation descriptions than they previously did.</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>unhoused_refined <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-processed/unhoused-refined.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
