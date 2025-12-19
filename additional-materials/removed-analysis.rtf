@@ -1,0 +1,364 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ## Monthly guilty cases\
+\
+What do guilty disposition percentages look like every month from January 2016 to November 20, 2025.\
+\
+```\{r\}\
+guilty_months_pct <- unhoused |> \
+  filter(!is.na(whitmire_judgment)) |> \
+  group_by(jud_yr,\
+           jud_floor_mo,\
+           whitmire_judgment) |>\
+  summarise(guilty = sum(disposition == "GUILTY TRIAL BY JUDGE"),\
+            total = n(),\
+            guilty_pct = round((guilty/total) * 100, 2)\
+            ) |>\
+  arrange(jud_floor_mo)\
+\
+guilty_months_pct\
+```\
+\
+```\{r\}\
+guilty_months_pct_plot <- ggplot(\
+  guilty_months_pct, \
+  aes(x = jud_floor_mo, \
+      y = guilty_pct, \
+      color = whitmire_judgment)) +\
+  geom_line(size = 0.9) +\
+  geom_point(size = 0.8) +\
+  geom_vline(xintercept = ymd("2024-01-01"),\
+             linetype = "dashed", \
+             color = "grey40") +\
+  geom_vline(xintercept = ymd("2025-07-01"),\
+             linetype = "dashed", \
+             color = "grey40") +\
+  scale_color_manual(\
+    values = c(\
+      "BEFORE WHITMIRE" = "#4E79A7", \
+      "AFTER WHITMIRE"  = "#E15759")\
+    ) +\
+  labs(\
+    title = "Percentage of guilty dispositions per month",\
+    subtitle = str_wrap(""),\
+    x = "Date",\
+    y = "Percentage of guilty dispositions",\
+    color = ""\
+  ) +\
+  theme_minimal() +\
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))\
+\
+ggsave("figures/guilty_months_pct_plot.png")\
+\
+guilty_months_pct_plot |> \
+  ggplotly()\
+```\
+\
+## Average monthly guilty\
+\
+What is the average percentage of guilty dispositions for each month since 2016?\
+\
+```\{r\}\
+avg_monthly_guilty <- unhoused |> \
+  #filter(judgment_date < "2025-01-01") |> # 2025 is not a complete year so including it skews later months' results\
+  group_by(jud_yr,\
+           jud_mo_label) |>\
+  summarise(guilty = sum(disposition == "GUILTY TRIAL BY JUDGE"),\
+            total = n(),\
+            guilty_pct = (guilty/total) * 100\
+            ) |>\
+  group_by(jud_mo_label) |>\
+  summarise(avg_guilty_pct = round(mean(guilty_pct), 2)) |> \
+  arrange(avg_guilty_pct)\
+\
+avg_monthly_guilty\
+```\
+\
+Data takeaways:\
+\
+* Up to 2024\
+  + Looking at an average of every month from 2016 to 2024, the month with the lowest average percentage of guilty dispositions is September at 14.02%, followed by December at 14.12%.\
+  + The month with the highest average percentage of guilty dispositions is March at 24.86%, followed by January at 21.66%.\
+* Including 2025\
+  + Looking at an average of every month from January 2016 to Nov. 20 2025, the month with the lowest average percentage of guilty dispositions is November at 13.17%, followed by December at 12.42%.\
+  + The month with the highest is March with 23.2%, followed by June with 19.96%.\
+\
+## Motion granted inmate\
+\
+Individual jailed judgments\
+\
+How many individual people have received at least one MOTION GRANTED INMATE (FULL CREDIT) judgment? Who has received the most MOTION GRANTED INMATE (FULL CREDIT) judgments?\
+\
+```\{r\}\
+unhoused |> \
+  group_by(refined_name) |> \
+  summarise(motion_jail_judgments = sum(judgment == "MOTION GRANTED INMATE (FULL CREDIT)")) |> \
+  filter(motion_jail_judgments > 1) |> \
+  arrange(desc(motion_jail_judgments))\
+```\
+\
+Distinct judgment dates\
+\
+Who has received the most MOTION GRANTED INMATE (FULL CREDIT) judgments on distinct judgment dates? \
+\
+**Explanation:** oftentimes, courts decide on several citations for the same person on one day. For example, Kevin Shakesnider didn't receive all 136 of his CREDIT TIME SERVED judgments on 136 separate days, the courts gave him the same judgment date for several of his citations.\
+\
+```\{r\}\
+unhoused |> \
+  filter(judgment == "MOTION GRANTED INMATE (FULL CREDIT)") |> \
+  distinct(refined_name, judgment_date) |> \
+  group_by(refined_name) |> \
+  summarise(motion_jail_judgment_days = n()) |> \
+  #filter(motion_jail_judgment_days > 1) |> \
+  arrange(desc(motion_jail_judgment_days))\
+```\
+\
+Data takeaways:\
+\
+* Of the 4,598 people who have received a citation since 2016, 35 of them received a "MOTION GRANTED INMATE (FULL CREDIT)" judgment at least once. Of those 35 people, 27 have received more than one "MOTION GRANTED INMATE (FULL CREDIT)" judgment.\
+* The person who has received the highest number of "MOTION GRANTED INMATE (FULL CREDIT)" judgments is Melissa Clark, who has received 12 individual judgments. Those 12 judgments were given on one distinct judgment date.\
+* Robert F Living is the only person with more than one "MOTION GRANTED INMATE (FULL CREDIT)" judgment day, at two judgment days. Between those two days, he received a total of four "MOTION GRANTED INMATE (FULL CREDIT)" judgments.\
+\
+## Shakesnider fines\
+\
+```\{r\}\
+shakesnider_monthly_fines <- unhoused_distinct |> \
+  filter(refined_name == "SHAKESNIDER, KEVIN P") |> \
+  group_by(off_floor_mo) |> \
+  summarise(\
+    fined_this_month = sum(amount_fined, na.rm = TRUE),\
+    paid_this_month = sum(fines_paid, na.rm = TRUE),\
+    dismissed_this_month = sum(fines_dismissed, na.rm = TRUE)\
+  )\
+\
+shakesnider_monthly_fines\
+```\
+Plotting\
+\
+```\{r\}\
+shakesnider_monthly_fines_plot <- ggplot(\
+  shakesnider_monthly_fines, \
+  aes(x = off_floor_mo)) +\
+  geom_col(\
+    aes(y = fined_this_month, \
+        fill = "NEW FINES"),\
+        width = 25) +\
+  geom_col(\
+    aes(y = paid_this_month, \
+        fill = "FINES PAID"),\
+    width = 25) +\
+  geom_col(\
+    aes(y = dismissed_this_month, fill = "FINES DISMISSED"),\
+    width = 25) +\
+  scale_fill_manual(\
+    values = c(\
+      "NEW FINES" = "#E15759",\
+      "FINES PAID" = "#4E79A7",\
+      "FINES DISMISSED" = "#59A14F"\
+    )\
+  ) +\
+  labs(\
+    title = "Monthly fines issued and resolved for Kevin P Shakesnider",\
+    subtitle = "",\
+    x = "Year",\
+    y = "Dollars",\
+    fill = "",\
+    caption = "By Layla Dajani") +\
+  theme_minimal() \
+\
+shakesnider_monthly_fines_plot |> ggplotly()\
+```\
+\
+## Jail judgment percentages\
+\
+What do monthly "CREDIT TIME SERVED" judgment percentages look like from January 2016 to November 20 2025?\
+\
+Making object:\
+\
+```\{r\}\
+mo_jail_pct <- unhoused |> \
+  filter(!is.na(whitmire_judgment)) |>\
+  group_by(jud_yr,\
+           jud_floor_mo, \
+           whitmire_judgment) |> \
+  summarise(jail_count = sum(judgment == "CREDIT TIME SERVED"),\
+            total = n(),\
+            jail_pct = round((jail_count/total)*100, 2)\
+            ) |> \
+  arrange(jud_floor_mo)\
+\
+mo_jail_pct\
+```\
+\
+Plotting:\
+\
+```\{r\}\
+mo_jail_pct_plot <- ggplot(\
+  mo_jail_pct, \
+  aes(x = jud_floor_mo, \
+      y = jail_pct, \
+      color = whitmire_judgment)) +\
+  geom_line(size = 0.9) +\
+  geom_point(size = 0.8) +\
+  geom_vline(xintercept = ymd("2024-01-01"),\
+             linetype = "dashed", \
+             color = "grey40") +\
+  geom_vline(xintercept = ymd("2025-07-01"),\
+             linetype = "dashed", \
+             color = "grey40") +\
+  scale_color_manual(\
+    values = c(\
+      "BEFORE WHITMIRE" = "#4E79A7", \
+      "AFTER WHITMIRE"  = "#E15759")\
+    ) +\
+  labs(\
+    title = str_wrap(""),\
+    subtitle = str_wrap(""),\
+    x = "Year",\
+    y = "Percentage of jail judgments",\
+    color = ""\
+  ) +\
+  theme_minimal() +\
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))\
+\
+#ggsave("figures/monthly_citations_all_plot.png")\
+\
+mo_jail_pct_plot |> \
+  ggplotly()\
+```\
+\
+## Mapping\
+\
+### 9.1 By district\
+\
+#### 9.1.1 Preparing mapping object\
+\
+##### 9.1.1.1 Importing district data\
+\
+Importing Houston district data as an sf object.\
+\
+```\{r\}\
+hou_districts <- st_read(\
+  "https://mycity2.houstontx.gov/pubgis02/rest/services/HoustonMap/Administrative_Boundary/MapServer/2/query?where=1=1&outFields=*&f=geojson"\
+)\
+\
+hou_districts\
+```\
+\
+##### 9.1.1.2 Simple feature\
+\
+Turning the addresses in a Simple Feature Collection.\
+\
+```\{r\}\
+pts <- st_as_sf(\
+  unhoused_distinct,\
+  coords = c("geocodio_longitude", "geocodio_latitude"),\
+  crs = 4326\
+)\
+\
+pts |> glimpse()\
+```\
+\
+##### 9.1.1.3 Fixing invalid district lines\
+\
+```\{r\}\
+clean_districts <- st_make_valid(hou_districts) # this function goes through every polygon to fix problems like duplicate points and self intersections, which i was having trouble with.\
+```\
+\
+```\{r\}\
+cleaner_districts <- st_transform(clean_districts, 4326)\
+```\
+\
+##### 9.1.1.4 Citation to district\
+\
+Assigning each citation to a district.\
+\
+```\{r\}\
+districting_citations <- st_join(pts, cleaner_districts, join = st_within)\
+\
+districting_citations\
+```\
+\
+Cleaning names after joining:\
+\
+```\{r\}\
+districting_citations_clean <- districting_citations |> \
+  clean_names()\
+\
+districting_citations_clean |> glimpse()\
+```\
+\
+#### 9.1.2 Citations by district\
+\
+Which district has received the most citations from 2016 to Sept. 2025? \
+\
+##### 9.1.2.1 Counting citation per district\
+\
+Grouping data by district, preparing to map.\
+\
+```\{r\}\
+district_counts <- districting_citations_clean |>\
+  st_drop_geometry() |> # this removes the geometry so we can summarize citation points, but i will add geometry back to map\
+  count(district, name = "citation_count")\
+\
+district_counts\
+```\
+\
+##### 9.1.2.2 Rejoining\
+\
+Cleaning cleaner_district names before joining.\
+\
+```\{r\}\
+cleaner_names_districts <- clean_names(cleaner_districts)\
+\
+cleaner_names_districts |> glimpse()\
+```\
+\
+Joining\
+\
+```\{r\}\
+unhoused_to_map <- cleaner_names_districts |>\
+  left_join(district_counts, by = "district")\
+\
+unhoused_to_map\
+```\
+\
+#### 9.1.6 Plotting\
+\
+##### 9.1.6.1 General ggplot\
+\
+Plotting a stagnant heat map to show each district's citations.\
+\
+```\{r\}\
+ggplot(unhoused_to_map) +\
+  geom_sf(aes(fill = citation_count), color = "white", size = 0.3) +\
+  scale_fill_viridis_c(option = "plasma", na.value = "grey90") +\
+  labs(\
+    title = "Citations given to unhoused people by Houston City Council district",\
+    caption = "By Layla Dajani",\
+    fill = "Citations",\
+    x = "Longitude",\
+    y = "Latitude"\
+  ) +\
+  theme_minimal()\
+```\
+\
+##### 9.1.6.2 General mapview\
+\
+Plotting an interactive heat map to show each district's citations.\
+\
+```\{r\}\
+mapview(\
+  unhoused_to_map,\
+  zcol = "citation_count",\
+  popup = c("district", "citation_count"),\
+  layer.name = "Citations"\
+)\
+```\
+\
+}

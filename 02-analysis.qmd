@@ -6,44 +6,48 @@ code-summary: "Expand this to see code"
 ---
 
 ## Goals for this notebook
-1. Create an object containing only rows with only its most recent case number.
+
+1. Create an object containing only its most recent case number.
 2. Investigate citation numbers over time
-    i) What is the year with the most citations?
-    ii) What is the month with the most citations?
-    iii) What is the average number of citations for each month since 2016?
+   i) What is the year with the most citations?
+   ii) What is the month with the most citations?
+   iii) What is the average number of citations for each month since 2016?
 3. Investigate most common violation types
-    i) What are the most common violation types of all time?
-    ii) What are the most common violation types by year?
+   i) What are the most common violation types of all time?
+   ii) What are the most common violation types by year?
+   iii) What are the most common violation types by month?
 4. Judgement and dispositions
-    i) What is the most common judgement?
-    ii) What is the most common disposition?
-    iii) How many guilty cases per year?
-    iv) What is the month with the most guilty dispositions and highest percentage?
-    v) What is the average percentage of guilty dispositions for each month from 2016-2024?
+   i) What are the most common judgments?
+   ii) What are the most common dispositions?
+   iii) How many guilty cases per year?
 5. Top people
-    i) Who has received the most citations? How many people received multiple citations/fines?
-    ii) Individual fine statistics
-        A. Who are the most heavily fined people?
-        B. How much of those fines got dismissed? 
-        C. How much did they pay? 
-        D. How much do they still have due? 
-        E. Who has paid the highest amount of dues?
-    iii) General fine statistics
-        A. How many people still owe fines to the city?
-        B. How many people have paid their fines?
-        C. How many people have had their fines dismissed?
+   i) Who has received the most citations? How many people received multiple citations/fines?
+      A.  Who are the most heavily fined people?
+      B.  How much of those fines got dismissed?
+      C.  How much did they pay?
+      D.  How much do they still have due?
+      E.  Who has paid the highest amount of dues?
+   iii) General fine statistics
+      A.  How many people still owe fines to the city?
+      B.  How many people have paid their fines?
+      C.  How many people have had their fines dismissed?
 6. Fines
-    i) How many distinct people are there who were fined?
-    ii) How many people still owe fines to the city? How much is the city owed in total?
-    iii) How many people have paid some/all of their fines?
-    iv) How many people have had some/all of their fines dismissed?
+   i) How many distinct people are there who were fined?
+   ii) How many people still owe fines to the city? How much is the city owed in total?
+   iii) How many people have paid some/all of their fines?
+   iv) How many people have had some/all of their fines dismissed?
 7. Jail time
-    i) How many jail judgments have been given?
-    ii) How many individual people have been jailed? How many have been jailed more than once?
+   i) How many jail judgments have been given?
+      A.  How many individual people have been jailed?
+      B.  How many have been jailed more than once?
+   ii) What do monthly "CREDIT TIME SERVED" judgment percentages look like from January 2016 to November 2025?
 8. Individual people analysis
-    i) Kevin Shakesnider received the highest jail judgments and fines, let's visualize that.
-    ii) Patricia Norris has the highest citation count, let's visualize that.
+   i) Kevin P Shakesnider received the highest jail judgments and fines.
+   ii) Patricia Norris has the highest citation count.
 9. Mapping analysis
+   i) Which zone has had the most citations in this data set?
+   ii) How did zone citation counts change by year?
+   iii) How did zone citation percentages change by year?
 
 ## Set up
 ```{r}
@@ -59,6 +63,7 @@ library(ggspatial)
 library(tigris)
 library(mapview)
 library(plotly)
+library(DT)
 ```
 
 ## Importing
@@ -68,7 +73,7 @@ unhoused <- read_csv("data-processed/unhoused-clean.csv")
 unhoused |> glimpse()
 ```
 
-## 1. Creating distinct object
+## 1. Creating distinct object {#creating-distinct-object}
 
 Right now, some rows have duplicate case numbers because the second appearance tracks how the case developed. Creating an object that does not have duplicate rows will ensure each row represents an individual citation. The second appearance will be kept because that provides the most updated data.
 
@@ -85,7 +90,7 @@ unhoused_distinct <- unhoused |>
 unhoused_distinct |> glimpse()
 ```
 
-## 2. Citation numbers over time
+## 2. Citation numbers over time {#citation-numbers-over-time}
 
 Looking at how individual citation numbers have changed over time.
 
@@ -98,7 +103,7 @@ What is the year with the most citations?
 ```{r}
 unhoused_yearly <- unhoused_distinct |> # unhoused_distinct ensures every row counts as an individual citation
   group_by(off_floor_yr, off_yr, whitmire_offense) |> 
-  summarize(yearly_offenses = n()) |> 
+  summarize(yearly_citations = n()) |> 
   arrange(off_floor_yr) 
 
 unhoused_yearly
@@ -106,25 +111,23 @@ unhoused_yearly
 
 #### 2.1.2 Plotting
 
-Plotting yearly offenses as an interactive bar chart.
+Plotting yearly citations as an interactive bar chart. Note that 2025 is only representative of data until Nov. 20.
 
 ```{r}
 yearly_plot <- ggplot(
   unhoused_yearly,
   aes(x = off_floor_yr, 
-      y = yearly_offenses),
+      y = yearly_citations),
   ) +
   geom_col(fill = "#4E79A7") +
   labs(
     title = "Yearly citations fluctuate from 2016 to 2025",
-    subtitle = "Note that 2025 is only representative of data until Nov. 20.",
+    subtitle = str_wrap("2019 to 2020 showed a 176% increase in citations per year. 2022 had 2007 citations, which showed a roughly 60% decrease from 2020 to 2022."),
     caption = "By Layla Dajani",
     x = "Year",
-    y = "Offenses per year"
+    y = "Citations per year"
   ) +
   theme_minimal()
-
-ggsave("figures/yearly-plot.png")
 
 yearly_plot |> 
   ggplotly()
@@ -133,35 +136,35 @@ yearly_plot |>
 #### 2.1.3 Data takeaways
 
 * The year with the highest number of citations is 2016 with 5800, followed by 2020 with 5011. The year with the lowest number of citations is 2018, at 1385.	
-* 2019 saw 1815 citations and 2020 had 5011 -- that is roughly a 176% increase in one year. 2022 had 2007	citations, which is a roughly 60% decrease from 2020 to 2022.
+* 2019 had 1815 citations and 2020 had 5011 -- that is roughly a 176% increase in one year. 2022 had 2007	citations, which is a roughly 60% decrease from 2020 to 2022.
 
-### 2.2 Highest citation month
+### 2.2 Monthly citations
 
 #### 2.2.1 Jul. 2023 to Nov. 2025
 
-What's the month with the most citations from Jul. 2023 to Jan. 2025?
+How did the monthly citation count change between Jul. 2023 to Jan. 2025?
+
+##### 2.2.1.1 Making object
 
 ```{r}
 monthly_citations <- unhoused_distinct |> 
   filter(offense_date >= "2023-07-01") |>  # looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024.
   group_by(off_floor_mo, whitmire_offense) |> # adding Whitmire offense for plotting
   summarise(
-    yr_mo_off = n()) |> 
+    monthly_citations = n()) |> 
     arrange(off_floor_mo)
 
 monthly_citations
 ```
 
-##### 2.2.1.1 Plotting - for summary
+##### 2.2.1.2 Plotting 
 
-@ Include in summary.
-
-Plotting a bar chart to show a monthly citation count between Jul. 2023 and Nov. 2025. Note that the Nov. 2025 data only goes to Nov. 20, and therefore cannot be accurately compared to all other months.  
+Plotting a bar chart to show the monthly citation count between Jul. 2023 and Nov. 2025. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes. 
 
 ```{r}
 monthly_citations_plot <- ggplot(monthly_citations, 
        aes(x = off_floor_mo, 
-           y = yr_mo_off, 
+           y = monthly_citations, 
            fill = whitmire_offense)) +
   geom_col() +
   geom_vline(xintercept = ymd("2024-01-01"), 
@@ -178,30 +181,28 @@ monthly_citations_plot <- ggplot(monthly_citations,
   )) +
   labs(
     title = "May to October 2025 indicate an upward climb of monthly citation numbers",
-    subtitle = str_wrap("The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes. Note that November 2025 only includes data through Nov. 20."),
+    subtitle = str_wrap("From July 2023 to November 2025, October 2025 had the highest citation count at 490 citations. Monthly citations increased by about 463.2% between May and October 2025."),
     x = "Date (yr/mo)",
     y = "Citations per month"
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggsave("figures/monthly_citations_plot.png")
-
 monthly_citations_plot |> 
   ggplotly()
 ```
 
-##### 2.2.1.2 Data takeaways
+##### 2.2.1.3 Data takeaways
 
-* Since July 2023, 6 months before Whitmire's term began: 
-  + The month with the highest citation number since July 2023 is October 2025 with 490 citations, followed by September 2025 with 338 citations. 
-  + The month with the lowest citation number since July 2023 is July 2023, with 66 citations. This is followed by May 2023 with 87 citations.
+* From July 2023 to November 2025, October 2025 had the highest citation count at 490 citations. This spike is the peak of a monthly increase starting in May 2025. Monthly citations increased by about 463.2% between May and October 2025.
   
 #### 2.2.2 Jan. 2016 to Nov. 2025
 
+##### 2.2.2.1 Making object
+
 ```{r}
 monthly_citations_all <- unhoused_distinct |> 
-  group_by(off_floor_mo, whitmire_offense) |> # adding whitmire_offense for when i plot
+  group_by(off_floor_mo, whitmire_offense) |> # adding whitmire_offense for plotting
   summarise(
     yr_mo_off = n()) |>
   arrange(off_floor_mo)
@@ -209,12 +210,13 @@ monthly_citations_all <- unhoused_distinct |>
 monthly_citations_all
 ```
 
-##### 2.2.2.1 Plotting - for summary
+##### 2.2.2.2 Plotting
 
-Plotting a line graph to show a monthly citation count between Jan. 2016 and Nov. 2025. Note that the Nov. 2025 data only goes to Nov. 20, and therefore cannot be accurately compared to all other months. 
+Plotting a line graph to show a monthly citation count between Jan. 2016 and Nov. 2025. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes. 
 
 ```{r}
-monthly_citations_all_plot <- ggplot(monthly_citations_all, 
+monthly_citations_all_plot <- ggplot(
+  monthly_citations_all, 
   aes(x = off_floor_mo, 
       y = yr_mo_off, 
       color = whitmire_offense)) +
@@ -232,8 +234,8 @@ monthly_citations_all_plot <- ggplot(monthly_citations_all,
       "AFTER WHITMIRE"  = "#E15759")
     ) +
   labs(
-    title = "Oct. 2025 was the month with the highest citation count in over four years",
-    subtitle = str_wrap("Note that November 2025 only includes data through Nov. 20."),
+    title = str_wrap("October 2025 was the month with the highest citation count in over four years"),
+    subtitle = str_wrap("The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes."),
     x = "Year",
     y = "Citations per month",
     color = ""
@@ -247,21 +249,21 @@ monthly_citations_all_plot |>
   ggplotly()
 ```
 
-##### 2.2.2.2 Data takeaways
+##### 2.2.2.3 Data takeaways
 
-* Since 2016
-  + The month with the highest citation number since 2016 is January 2021, with 797 citations. This is followed by April 2016 with 715 citations.
-  + The month with the lowest citation number since 2016 is March 2022 with 29 citations. This is followed by December 2018 with 37 citations.
+* From January 2016 to November 2025
+  + While October 2025 showed the highest monthly citation count in four years, citation counts peaked even higher in January 2021, at 797 citations, and April 2016, with 715 citations.
+  + Monthly citation counts sunk between July 2017 and July 2019. 
 
 ### 2.3 Avg monthly citation
 
-#### 2.3.1 Creating object
+What is the average citation count for each calendar month from 2016 to 2025?
 
-What is the average monthly citation count for each month from 2016 to 2024? Note that this means November and all of December 2025 are not accurate averages.
+#### 2.3.1 Making object
 
 ```{r}
 mo_avg_citations <- unhoused_distinct |> 
-  #filter(off_yr < 2025) |> #@ i'm including all of 2025, but note that this means Nov. and Dec. are not accurate averages.
+  #filter(off_yr < 2025) |> # i'm including all of 2025, but note that this means Nov. and Dec. are not accurate averages.
   group_by(off_yr,
            off_floor_mo,
            off_mo_label) |> 
@@ -275,6 +277,8 @@ mo_avg_citations
 
 #### 2.3.2 Plotting
 
+Note that November and December are not accurate averages because 2025 does not contain complete data for those months.
+
 ```{r}
 mo_avg_citations_plot <- ggplot(
   mo_avg_citations,
@@ -284,7 +288,7 @@ mo_avg_citations_plot <- ggplot(
   ) +
   geom_col(fill = "#4E79A7") +
   labs(
-    title = "Monthly citations averaged from Jan. 2016 to Dec. 2024",
+    title = "Monthly citations averaged from Jan. 2016 to Dec. 2025",
     subtitle = str_wrap(""),
     caption = "Graphic by Layla Dajani",
     x = "Month",
@@ -298,11 +302,11 @@ mo_avg_citations_plot |>
 
 #### 2.3.3 Data takeaways
 
-* May and June seem to be the months that draw the most citatons. Surges in specific years could be driving the averages higher in certain months. For instance, January 2021 had the highest citations (787) of any month since 2016.
+* January is the month that draws the most citations. But surges in specific years could be driving the averages higher in certain months. For instance, January 2016 and 2021 had exceptionally high citation counts, seen in figure 2.2.2.1.
 
-## 3. Violation types
+## 3. Violation types {#violation-types}
 
-### 3.1 Most common
+### 3.1 Most common {#most-common}
 
 Finding the most common violation types.
 
@@ -342,7 +346,7 @@ There are seven types of violations that have been given since 2016. Here is wha
 
 Plotting yearly violation code totals from Jan. 1, 2016 to Nov. 20, 2025. Note that this means 2025 is an incomplete year.
 
-#### 3.2.1 Create object
+#### 3.2.1 Making object
 
 ```{r}
 unhoused_violations <- unhoused_distinct |> 
@@ -354,11 +358,9 @@ unhoused_violations <- unhoused_distinct |>
 unhoused_violations |> glimpse()
 ```
 
-### 3.2.2 Plotting -- for summary
+#### 3.2.2 Plotting
 
-@for summary
-
-Note that 2025 is an incomplete year, meaning is not representative of the whole year and cannot be reliably compared to past complete years.
+The first dotted line indicates when Whitmire's term began.
 
 ```{r}
 unhoused_violations_plot <- ggplot(
@@ -371,20 +373,15 @@ unhoused_violations_plot <- ggplot(
   geom_vline(xintercept = ymd("2024-01-01"),
              linetype = "dashed", 
              color = "grey70") +
-  geom_vline(xintercept = ymd("2025-07-01"),
-             linetype = "dashed", 
-             color = "grey70") +
   labs(
     title = str_wrap("Number of citations by year broken down by violation code from Jan. 2016 to Nov. 2025"),
-    subtitle = "",
+    subtitle = "Violation codes CC753, CC942, CC943, CC948 and CC956 first appeared in 2025.",
     caption = "By Layla Dajani",
     fill = "Citations",
     x = "Year",
     y = "Citations per year"
   ) +
   theme_minimal()
-
-ggsave("figures/unhoused_violations_plot.png")
 
 unhoused_violations_plot |> 
   ggplotly()
@@ -397,27 +394,28 @@ unhoused_violations_plot |>
 
 ### 3.3 Violation codes by month
 
-#### 3.3.1 By number
+#### 3.3.1 By count '16 - '25
 
 ##### 3.3.1.1 Making object
 
 ```{r}
-types_by_month <- unhoused_distinct |>
-  #filter(offense_date <= "2025-10-31") |> # note that this not filtering means Nov. 2025 is included, despite being an incomplete month
+types_by_month_16 <- unhoused_distinct |>
   group_by(off_floor_mo, 
            violation_code,
            ordinance_type) |>
   summarise(citation_count = n(), .groups = "drop") |>
   arrange(off_floor_mo)
 
-types_by_month
+types_by_month_16
 ```
 
-##### 3.3.1.2 Plotting
+##### 3.3.1.2 Plotting {#plotting-3-3-1-2}
+
+Note that November 2025 is an incomplete month and does not reflect its data wholly. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes.
 
 ```{r}
-types_by_month_plot <- ggplot(
-  types_by_month,
+types_by_month_16_plot <- ggplot(
+  types_by_month_16,
   aes(x = off_floor_mo, 
       y = citation_count, 
       color = violation_code)) +
@@ -438,25 +436,74 @@ types_by_month_plot <- ggplot(
       ) +
 theme_minimal()
 
-types_by_month_plot |> 
-  ggplotly() #@ add new column with descriptors 1 word
+types_by_month_16_plot |> 
+  ggplotly()
 ```
 
-##### 3.3.1.3 Data takeaways
-
-* This further suggests CC940 and CC941 lines follow similar patterns, indicating they have been given out at the same rate. But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new ordinance citations increased. This is further displayed in the following graph.
-
-#### 3.3.2 By CC941 percentage
-
-What percentage of CC940 violation codes were met with CC941 violation codes over time? This tracks their correlation.
+#### 3.3.2 By count '22 - '25 {#3.3.2}
 
 ##### 3.3.2.1 Making object
 
 ```{r}
+types_by_month_22 <- unhoused_distinct |>
+  filter(off_floor_mo >= "2022-01-01") |> 
+  group_by(off_floor_mo, 
+           violation_code,
+           ordinance_type) |>
+  summarise(citation_count = n(), .groups = "drop") |>
+  arrange(off_floor_mo)
+
+types_by_month_22
+```
+
+##### 3.3.1.2 Plotting
+
+Note that November 2025 is an incomplete month and does not reflect its data wholly. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes.
+
+```{r}
+types_by_month_22_plot <- ggplot(
+  types_by_month_22,
+  aes(x = off_floor_mo, 
+      y = citation_count, 
+      color = violation_code)) +
+  geom_line() +
+  geom_point(size = 0.4) +
+  geom_vline(xintercept = ymd("2024-01-01"),
+             linetype = "dashed", 
+             color = "grey70") +
+  geom_vline(xintercept = ymd("2025-07-01"),
+             linetype = "dashed", 
+             color = "grey70") +
+  labs(
+    title = str_wrap("Number of citations by year broken down by violation code from Jan. 1, 2022 to Nov. 20, 2025"),
+    subtitle = strwrap("The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes."),
+    caption = "By Layla Dajani",
+    x = "Year",
+    y = "Citations per year"
+      ) +
+theme_minimal()
+
+ggsave("figures/types-by-month-22-plot.png")
+
+types_by_month_22_plot |> 
+  ggplotly()
+```
+
+##### 3.3.1.3 Data takeaways
+
+* This further suggests CC940 and CC941 have followed similar patterns, indicating they have been given out at the same rate. But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased. This is further displayed in the following graph.
+
+#### 3.3.3 By percentage
+
+What percentage of CC940 violation codes were met with CC941 violation codes over time? This tracks their correlation.
+
+##### 3.3.3.1 Making object
+
+```{r}
 codes_by_pct <- unhoused_distinct |> 
-  #filter(violation_code == "CC940" | violation_code == "CC941") |> 
   group_by(off_floor_mo) |> 
   summarise(
+    total_citations = n(),
     total_940 = sum(violation_code == "CC940"),
     total_941 = sum(violation_code == "CC941"),
     total_other = sum(violation_code == "CC753", 
@@ -465,8 +512,9 @@ codes_by_pct <- unhoused_distinct |>
                       violation_code == "CC948" | 
                       violation_code == "CC956" | 
                       violation_code == "CC921"),
-    cc941_pct = round((total_941/total_940)*100, 2),
-    other_pct = round((total_other/total_940)*100, 2)
+    cc940_pct = round((total_940/total_citations)*100, 2),
+    cc941_pct = round((total_941/total_citations)*100, 2),
+    other_pct = round((total_other/total_citations)*100, 2)
   ) |> 
   ungroup() |>
   arrange(off_floor_mo)
@@ -474,22 +522,36 @@ codes_by_pct <- unhoused_distinct |>
 codes_by_pct 
 ```
 
-##### 3.3.2.2 Plotting
+##### 3.3.3.2 Plotting {#plotting-3-3-3-2}
+
+Note that November 2025 is an incomplete month and does not reflect its data wholly. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes. "ALL OTHERS" includes all codes that are not CC940 or 941.
 
 ```{r}
 codes_by_pct_plot <- ggplot(
   codes_by_pct,
   aes(x = off_floor_mo)) +
+  geom_line(aes(y = cc940_pct,
+                color = "CC940")) +
+  geom_point(aes(y = cc940_pct,
+                color = "CC940"),
+             size = 0.4) +
   geom_line(aes(y = cc941_pct,
                 color = "CC941")) +
   geom_point(aes(y = cc941_pct,
                 color = "CC941"),
              size = 0.4) +
   geom_line(aes(y = other_pct,
-                color = "All others")) +
+                color = "ALL OTHERS")) +
   geom_point(aes(y = other_pct,
-                color = "All others"),
+                color = "ALL OTHERS"),
              size = 0.4) +
+  scale_color_manual(
+    name = "VIOLATION CODE",
+    values = c(
+      "CC941" = "#4E79A7",
+      "ALL OTHERS" = "#E15759"
+    )
+  ) +
   geom_vline(xintercept = ymd("2024-01-01"),
              linetype = "dashed", 
              color = "grey70") +
@@ -497,27 +559,28 @@ codes_by_pct_plot <- ggplot(
              linetype = "dashed", 
              color = "grey70") +
   labs(
-    title = str_wrap("CC941 and all 'other' codes as percentages of CC940"),
-    subtitle = str_wrap("As 941's percentage decreases, 'other' violation code percentages increase. Starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new ordinance citations increased."),
+    title = str_wrap("CC940, CC941 and all 'other' codes percentage breakdown by month."),
+    subtitle = str_wrap(""),
     caption = "By Layla Dajani",
     x = "Year",
-    y = "Percent of CC940"
+    y = "Percentage of total citations"
       ) +
 theme_minimal()
 
 codes_by_pct_plot |> 
-  ggplotly() #@ add new column with descriptors 1 word
+  ggplotly()
 ```
 
-##### 3.3.2.3 Data takeaways
+##### 3.3.3.3 Data takeaways
 
-@write
+* Starting around July 2025, when Whitmire introduced new violation codes, the CC941 percentage decreased, while new violation code percentages increased.
+* August 2025 was the first time the percentage of all 'other' codes exceeded CC941 for that month, and October 2025 was they exceeded CC940 for that month.
 
-### 3.3 Ordinance types over time
+### 3.4 Ordinance types over time
 
-#### 3.3.1 Making object
+#### 3.4.1 Making object
 
-Grouping by ordinance type and plotting over time. @ fix x axis stops
+Grouping by ordinance type and plotting over time.
 
 ```{r}
 types_over_time <- unhoused_distinct |>
@@ -530,7 +593,9 @@ types_over_time <- unhoused_distinct |>
 types_over_time
 ```
 
-#### 3.3.2 Plotting - for summary
+#### 3.4.2 Plotting
+
+Note that November 2025 is an incomplete month and does not reflect its data wholly. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes.
 
 ```{r}
 types_over_time_plot <- ggplot(
@@ -540,6 +605,14 @@ types_over_time_plot <- ggplot(
       fill = ordinance_type
       )) +
   geom_col(position = "stack") +
+  scale_fill_manual(
+    name = "ORDINANCE TYPE",
+    values = c(
+      "CIVILITY" = "#E15759",
+      "SIDEWALK" = "#4E79A7",
+      "OTHER" = "#59A14F"
+    )
+  ) +
   geom_vline(xintercept = ymd("2024-01-01"),
              linetype = "dashed", 
              color = "grey40") +
@@ -550,7 +623,9 @@ types_over_time_plot <- ggplot(
     x = "Date",
     y = "Number of citations per month",
     fill = "Violation type",
-    title = "Monthly citations by violation type from Jul. 2023 to Sept. 2025"
+    title = "Monthly citations by violation type from July 2023 to November 2025",
+    subtitle = str_wrap("The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes."),
+    caption = "Layla Dajani"
       ) +
   theme_minimal()
 
@@ -560,13 +635,15 @@ types_over_time_plot |>
   ggplotly()
 ```
 
-#### 3.3.3 Data takeaways
+#### 3.4.3 Data takeaways
 
 October 2025 had highest sidewalk obstruction citations per month in this data set. The 146 citations made up around 30% of the total citations from that month.
 
-## 4. Judgment and dispositions
+## 4. Judgments and dispositions
 
 ### 4.1 Most common judgment
+
+#### 4.1.1 Unrefined
 
 What is the most common specific judgment?
 
@@ -577,6 +654,8 @@ unhoused |> # not using unhoused_distinct here to show the true judgment stats. 
   arrange(desc(judgment_count))
 ```
 
+#### 4.1.2 Refined
+
 What is the most common refined judgment?
 
 ```{r}
@@ -586,33 +665,53 @@ unhoused |>
   arrange(desc(judgment_count))
 ```
 
-#### 4.1.1 Data takeaways
+#### 4.1.3 Case dismissed
 
-* Judgment unrefined
-  + The most common judgment is "CASE DISMISSED - OFFICER NOT PRESENT" with 8,439	counts, followed by "CREDIT TIME SERVED" with 5,440 counts and "FAILURE TO APPEAR WARRANT (FTA)" with 5,114 counts.
-* Judgment refined
-  + The most common judgment is "CASE DISMISSED" with 11,693 counts, followed by "CREDIT TIME SERVED" with 5,440 counts and "FAILURE TO APPEAR WARRANT (FTA)" with 5,144 counts.
+Break down of case dismissed judgments.
+
+```{r}
+unhoused |>
+  filter(
+    str_detect(judgment, regex("CASE DISMISSED"))
+  ) |>
+  tabyl(judgment) |>
+  rename(judgment_count = n) |>
+  mutate(percent = (percent * 100) |> round(1)) |>
+  arrange(desc(percent)) |>
+  tibble()
+```
+
+#### 4.1.4 Data takeaways {#data-takeaways-4-1-4}
+
+* "Case dismissed" is the most common judgment, with a count of 11693.
+* The most common reason a case is dismissed is because the officer was not present. Of the 11693 cases that were dismissed, about 72% of cases were dismissed because officers were not present. About 20% of case dismissals were because "OUTREACH(Indigency)."
 
 ### 4.2 Most common disposition
 
 What is the most common disposition?
 
 ```{r}
-unhoused |> 
-  group_by(disposition) |> 
-  summarise(disposition_count = n()) |> 
-  arrange(desc(disposition_count))
+unhoused |>
+  filter(
+    str_detect(judgment, regex("CASE DISMISSED"))
+  ) |>
+  tabyl(judgment) |>
+  rename(judgment_count = n) |>
+  mutate(percent = (percent * 100) |> round(1)) |>
+  arrange(desc(percent)) |>
+  tibble()
 ```
 
-#### 4.2.1 Data takeaways
+#### 4.2.1 Data takeaways {#data-takeaways-4-2-1}
 
-* Since "UNDISPOSED" means the case still has not been decided, of the cases that have received a disposition, about 59% were dismissed at trial.
+* Since "undisposed" means the case still has not been decided, of the cases that have received a disposition, about 59% were dismissed at trial. 
+* About 36% of cases that have received a disposition were ruled "guilty by trial judge."
 
 ### 4.3 Yearly guilty cases
 
-What is the year with the most guilty dispositions?
+Guilty disposition counts by year.
 
-#### 4.3.1 Creating object
+#### 4.3.1 Making object
 
 ```{r}
 yearly_guilty <- unhoused |> 
@@ -633,9 +732,6 @@ yearly_guilty_plot <- ggplot(
       y = yearly_guilty
       )) +
   geom_col(fill = "#4E79A7") +
-  geom_vline(xintercept = ymd("2024-01-01"),
-             linetype = "dashed", 
-             color = "grey40") +
   labs(
     x = "Year",
     y = "Number of guilty judgments per month",
@@ -653,96 +749,6 @@ yearly_guilty_plot |>
 * 2018 is the year with the lowest number of guilty dispositions at 50 dispositions.
 * 2016 is the year with the highest number of guilty dispositions at 1951 dispositions, followed by 2021 with 931.
 
-### 4.4 Highest guilty month
-
-Of all the individual months each year, what is the month with the most guilty dispositions percentage relative to all dispositions that month?
-
-```{r}
-guilty_months_pct <- unhoused |> 
-  #filter(judgment_date >= "2023-07-01") |> 
-  group_by(jud_yr,
-           jud_floor_mo,
-           whitmire_judgment) |> 
-  summarise(guilty = sum(disposition == "GUILTY TRIAL BY JUDGE"),
-            total = n(),
-            guilty_pct = round((guilty/total) * 100, 2)
-            ) |> 
-  arrange(jud_floor_mo)
-
-guilty_months_pct
-```
-
-#### 4.4.1 Plotting - for summary
-
-@for summary
-
-```{r}
-guilty_months_pct_plot <- ggplot(
-  guilty_months_pct, 
-  aes(x = jud_floor_mo, 
-      y = guilty_pct, 
-      color = whitmire_judgment)) +
-  geom_line(size = 0.9) +
-  geom_point(size = 0.8) +
-  geom_vline(xintercept = ymd("2024-01-01"),
-             linetype = "dashed", 
-             color = "grey40") +
-  geom_vline(xintercept = ymd("2025-07-01"),
-             linetype = "dashed", 
-             color = "grey40") +
-  scale_color_manual(
-    values = c(
-      "BEFORE WHITMIRE" = "#4E79A7", 
-      "AFTER WHITMIRE"  = "#E15759")
-    ) +
-  labs(
-    title = "Percentage of guilty dispositions per month",
-    subtitle = str_wrap(""),
-    x = "Date",
-    y = "Percentage of guilty dispositions",
-    color = ""
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggsave("figures/guilty_months_pct_plot.png")
-
-guilty_months_pct_plot |> 
-  ggplotly()
-```
-
-#### 4.4.2 Data takeaways
-@ write this
-  
-### 4.5 Avg monthly guilty
-
-What is the average percentage of guilty dispositions for each month since 2016?
-
-```{r}
-avg_monthly_guilty <- unhoused |> 
-  #filter(judgment_date < "2025-01-01") |> # 2025 is not a complete year so including it skews later months' results
-  group_by(jud_yr,
-           jud_mo_label) |>
-  summarise(guilty = sum(disposition == "GUILTY TRIAL BY JUDGE"),
-            total = n(),
-            guilty_pct = (guilty/total) * 100
-            ) |>
-  group_by(jud_mo_label) |>
-  summarise(avg_guilty_pct = round(mean(guilty_pct), 2)) |> 
-  arrange(avg_guilty_pct)
-
-avg_monthly_guilty
-```
-
-#### 4.5.2 Data takeaways
-
-* Up to 2024
-  + Looking at an average of every month from 2016 to 2024, the month with the lowest average percentage of guilty dispositions is September at 14.02%, followed by December at 14.12%.
-  + The month with the highest average percentage of guilty dispositions is March at 24.86%, followed by January at 21.66%.
-* Including 2025
-  + Looking at an average of every month from January 2016 to Nov. 2025, the month with the lowest average percentage of guilty dispositions is November at 13.17%, followed by December at 12.42%.
-  + The month with the highest is March with 23.2%, followed by June with 19.96%.
-
 ## 5. Top people
 
 ### 5.1 Distinct people
@@ -754,13 +760,13 @@ unhoused_distinct |>
   summarise(people_count = n_distinct(refined_name))
 ```
 
-#### 5.1.1 Data takeaway
+#### 5.1.1 Data takeaway {#data-takeaways-5-1-1}
 
-* There are 4,682 distinct people who have received a citation since 2016. Note that this number is an estimate as the name cleaning process is not perfect.
+* There are 4,682 distinct people who have received a citation since 2016. Note that this number is an estimate as the name cleaning process was not perfect.
 
 ### 5.2 Most citations
 
-Who has received the most citations? 
+Who has received the most citations since January 2016? 
 
 ```{r}
 unhoused_distinct |> 
@@ -773,41 +779,58 @@ unhoused_distinct |>
   filter(citation_count >= 100)
 ```
 
-#### 5.2.1 Data takeaways
+#### 5.2.1 Data takeaways {#data-takeaways-5-2-1}
 
 * There are 26 people who have received at least 100 total citations. 
 * The person with the most citations is Patricia Norris, who has received 794 total citations, all given between October 2017 and May 2025. 
 * The person with the second most citations is Forest H Smith, who has received 351 total citations, all given between August 2020 and November 2025.
 
-### 5.3 Most fines and dues
+### 5.3 Most fines and dues {#most-fines-and-dues}
 
-Who are the most heavily fined people? How much of those fines got dismissed? How much did they pay? How much do they still have due? Who has paid the highest amount of dues?
+* Who are the most heavily fined people? 
+* How much of those fines got dismissed? 
+* How much did they pay? 
+* How much do they still have due? Who has paid the highest amount of dues? 
+
+fines_paid_not_credit is how much the person paid when time_served = "NO."
+fines_paid_served_credit is how much the person paid when time_served = "YES."
 
 ```{r}
 individual_fines <- unhoused_distinct |>
   group_by(refined_name) |>
-  summarise(total_fined = sum(amount_fined, na.rm = TRUE),
-    total_fines_dismissed = sum(fines_dismissed, na.rm = TRUE),
-    total_fines_paid = sum(fines_paid, na.rm = TRUE),
-    total_fines_due = sum(fines_due, na.rm = TRUE)
+  summarise(
+    citations = n(),
+    total_fined = sum(amount_fined, na.rm = TRUE) |> round(0),
+    total_fines_dismissed = sum(fines_dismissed, na.rm = TRUE) |> round(0),
+    total_fines_paid = sum(fines_paid, na.rm = TRUE) |> round(0),
+    fines_paid_not_credit = sum(fines_paid[time_served == "NO"], na.rm = TRUE) |> round(0),
+    fines_paid_served_credit = sum(fines_paid[time_served == "YES"], na.rm = TRUE) |> round(0),
+    total_fines_due = sum(fines_due, na.rm = TRUE) |> round(0)
   ) |>
-  arrange(desc(total_fines_paid))
+  arrange(desc(total_fined))
 
-individual_fines
+individual_fines |> 
+  datatable()
 ```
 
-#### 5.3.1 Data takeaways
+#### 5.3.1 Data takeaways {#data-takeaways-5-3-1}
 
-* Patricia Norris has been charged the highest total fines at around \$199,123. She hasn't paid any of her fines, but has had about \$149,118 dismissed, which leaves about \$50,006 that she still owes. 
-* Forest H Smith is the second most fined person, with around \$86,223 total fines. He has also never paid any of his fines, but has had roughly \$9,584 dismissed, leaving around \$76,640 that he still owes.
-* Kevin P Shakesnider is the person who has paid the highest amount of fines. He has paid about \$28,684 of his total \$45,125, and has had roughly \$10,916 dismissed. As of November 2025, he still owes about \$5,525.
+* Most fined:
+  + Patricia Norris has been charged the highest total fines at around \$199,123. She hasn't paid any of her fines, but has had about \$149,118 dismissed, which leaves about \$50,006 that she still owes. 
+  + Forest H Smith is the second most fined person, with around \$86,223 total fines. He has also never paid any of his fines, but has had roughly \$9,584 dismissed, leaving around \$76,640 that he still owes.
+* Paid the most in cash:
+  + Kevin P Shakesnider is the person who has paid the highest amount of fines when considering cash and time served combined. He is also the person who has paid the most fines in cash. He has paid about \$26,108 of his total fined \$45,125 with "CREDIT TIME SERVED," he paid \$2576 in cash, and has had roughly \$10,916 dismissed. As of November 2025, he still owes about \$5,525.
+  + 14 people have paid over $1,000 in cash. The top three in descending order are Shakesnider, Melissa Clark and Robin Harrison.
+* Paid the most in time served:
+  + Bobby L Anderson Jr. has paid the most fines with "CREDIT TIME SERVED." He has been fined roughly \$38,245. Of that, he paid \$26,489 with time served, none in cash and had about \$9,287 dismissed.
 
 ## 6. Fines
 
 1. How many distinct people are there who were fined?
 2. How many people still owe fines to the city? How much is the city owed in total?
-3. How many people have paid some/all of their fines?
-4. How many people have had some/all of their fines dismissed?
+3. How many people have paid some/all of their fines when time_served = "NO"?
+4. How many people have paid some/all of their fines when time_served = "YES"?
+5. How many people have had some/all of their fines dismissed?
 
 ### 6.1 Fined people
 
@@ -815,9 +838,11 @@ How many distinct people are there who were fined?
 
 ```{r}
 individual_fines |> 
-  filter(total_fined > 0) |> 
-  summarise(fined_people = n(),
-            amount_fined_total = sum(total_fined))
+  filter(total_fined > 0) |>
+  summarise(total_fined_people = n(),
+            amount_fined_total = sum(total_fined),
+            percent_of_total_people = round((total_fined_people / 4598) * 100, 1)
+            )
 ```
 
 ### 6.2 Owed fines
@@ -828,54 +853,127 @@ How many people still owe fines to the city? How much is the city owed in total?
 individual_fines |> 
   filter(total_fines_due > 0) |> 
   summarise(people_owing_fines = n(),
-            owed_fines_total = sum(total_fines_due)
-            )
+            owed_fines_total = sum(total_fines_due),
+            percent_of_people = round((people_owing_fines / 4456) * 100, 1),
+            percent_of_fines = round((owed_fines_total / 6735088) * 100, 1)
+  )
 ```
 
-### 6.3 Fines paid
+### 6.3 Fines paid not served
+
+How many people have paid some/all of their fines when time_served = "NO"?
 
 #### 6.3.1 Some fines paid
 
-How many people have paid at least some of their fines?
+How many people have paid at least some of their fines when time_served = "NO"?
 
 ```{r}
 individual_fines |> 
-  filter(total_fines_paid > 0) |> 
+  filter(fines_paid_not_credit > 0) |> 
   summarise(people_paid_some_fines = n(),
-            paid_fines_total = sum(total_fines_paid) 
-            )
+            paid_fines_not_credit_total = sum(fines_paid_not_credit),
+            percent_of_people = round((people_paid_some_fines / 4456) * 100, 1),
+            percent_of_fines = round((paid_fines_not_credit_total / 6735088) * 100, 1)
+  )
 ```
 
 #### 6.3.2 All fines paid - no dismissals
 
-How many people have paid all of their fines with no help from dismissals?
+How many people have paid all of their fines when time_served = "NO" with no help from dismissals?
 
 ```{r}
 individual_fines |> 
-  filter(total_fines_paid == total_fined) |> 
+  filter(total_fined > 0,
+         fines_paid_not_credit == total_fined
+  ) |> 
   summarise(people_paid_all_fines = n(),
-            paid_fines_total = sum(total_fines_paid) 
-            )
+            paid_fines_not_crdit_total = sum(fines_paid_not_credit),
+            percent_of_people = round((people_paid_all_fines / 4456) * 100, 1),
+            percent_of_fines = round((paid_fines_not_crdit_total / 6735088) * 100, 1)
+  )
 ```
 
-### 6.4 Fines dismissed
+### 6.4 Fines paid time served
+
+How many people have paid some/all of their fines when time_served = "YES"?
+
+#### 6.4.1 Some fines paid
+
+How many people have paid at least some of their fines when time_served = "YES"?
+
+```{r}
+individual_fines |> 
+  filter(fines_paid_served_credit > 0) |> 
+  summarise(people_paid_some_fines = n(), 
+            paid_fines_credit_total = sum(fines_paid_served_credit),
+            percent_of_people = round((people_paid_some_fines / 4456) * 100, 1),
+            percent_of_fines = round((paid_fines_credit_total / 6735088) * 100, 1)
+  )
+```
+
+#### 6.4.2 All fines paid - no dismissals
+
+How many people have paid all of their fines when time_served = "YES" with no help from dismissals?
+
+```{r}
+individual_fines |> 
+  filter(total_fined > 0,
+         fines_paid_served_credit == total_fined
+  ) |> 
+  summarise(people_paid_all_fines = n(),
+            paid_fines_credit_total = sum(fines_paid_served_credit),
+            percent_of_people = round((people_paid_all_fines / 4456) * 100, 1),
+            percent_of_fines = round((paid_fines_credit_total / 6735088) * 100, 1)
+  )
+```
+
+### 6.5 Fines dismissed
 
 How many people have had some/all of their fines dismissed?
+
+#### 6.5.1 Some dismissed
+
+How many people have had at least some of their fines dismissed?
+
+```{r}
+individual_fines |> 
+  filter(total_fines_dismissed > 0) |> 
+  summarise(people_some_dismissed_fines = n(),
+            total_dismissed = sum(total_fines_dismissed),
+            percent_of_people = round((people_some_dismissed_fines / 4456) * 100, 1),
+            percent_of_fines = round((total_dismissed / 6735088) * 100, 1)
+  )
+```
+
+#### 6.5.2 All dismissed
+
+How many people have had all of their fines dismissed?
 
 ```{r}
 individual_fines |> 
   filter(total_fines_dismissed > 0,
-         total_fines_dismissed == total_fined) |> 
-  summarise(individual_fines_dismissed = n()
-            )
+         total_fines_dismissed == total_fined
+  ) |> 
+  summarise(people_all_dismissed_fines = n(),
+            total_dismissed = sum(total_fines_dismissed),
+            percent_of_people = round((people_all_dismissed_fines / 4456) * 100, 1),
+            percent_of_fines = round((total_dismissed / 6735088) * 100, 1)
+  )
+
 ```
 
-### 6.5 Data takeaways
+### 6.6 Data takeaways {#data-takeaways-6-6}
 
-1. There are about 4,456 distinct people who have received a fine with their citation since 2016, their cumulative total being $6,735,614.
-2. Of the 4,456 distinct people who have received a fine with their citation, 2,972 of them still owe fines. The sum of total fines still owed to the city is \$3,013,654.	
-3. Of the 4,456 distinct people who have received a fine with their citation, 1,225 of them have paid at least some of their fines. 785 of those people have paid off all their fines without any help from dismissals. The total amount of fines paid since 2016 is about \$1,486,821.	
-4. Of the 4,456 distinct people who have received a fine with their citation, 1459 people have had at least some of their fines dismissed, and 699 of those 1,459 people had all of their fines dismissed.
+1. **Total fined:** There are about 4,456 out of the total 4,598 distinct people who have received a fine with their citation since 2016, their cumulative total being $6,735,614.
+    i) So about 97% who have received citations have also received a fine at some point.
+2. **Total owed:** Of the 4,456 people, 2,972 still owe fines. The sum of total fines still owed to the city is \$3,013,654.
+    i) So the city is still owed about 45% of the roughly $6.7 million the city has fined unhoused people since 2016.
+3. **Paid time_served "YES":** Of the 4,456 people, 227 have paid at least some of their fines when time_served = "YES." 78 of those people have paid off all their fines without any help from dismissals. The total amount of fines paid when time_served = "YES" since 2016 is about \$80,039.
+    i) So just over 1% of the roughly $6.7 million the city has fined unhoused people since 2016 has been paid in cash.
+4. **Paid time_served "NO":** Of the 4,456 people, 1066 have paid at least some of their fines when time_served = "NO." 467 of those people have paid off all their fines without any help from dismissals. The total amount of fines paid when time_served = "NO" since 2016 is about \$1,406,782.
+    i) So about 21% of the roughly $6.7 million the city has fined unhoused people since 2016 has been paid in time served.
+5. **Total dismissed:** Of the 4,456 people, 1459 have had at least some of their fines dismissed, and 699 of those 1,459 people had all of their fines dismissed. A total of \$2,235,140	has been dismissed. 
+    i) So about 33% of the roughly $6.7 million the city has fined unhoused people since 2016 has been dismissed.
 
 ## 7. Jail time
 
@@ -888,8 +986,8 @@ How many individual people have received at least one CREDIT TIME SERVED judgmen
 ```{r}
 unhoused |> 
   group_by(refined_name) |> 
-  summarise(credit_jail_judgments = sum(time_served == "yes")) |> 
-  filter(credit_jail_judgments > 0) |> 
+  summarise(credit_jail_judgments = sum(time_served == "YES")) |> 
+  filter(credit_jail_judgments > 1) |> 
   arrange(desc(credit_jail_judgments))
 ```
 
@@ -901,7 +999,7 @@ Who has received the most CREDIT TIME SERVED judgments on distinct judgment date
 
 ```{r}
 unhoused |> 
-  filter(time_served == "yes") |> 
+  filter(time_served == "YES") |> 
   distinct(refined_name, judgment_date) |> 
   group_by(refined_name) |> 
   summarise(credit_jail_judgment_days = n()) |> 
@@ -911,111 +1009,45 @@ unhoused |>
 
 #### 7.1.3 Data takeaways
 
-* Of the 4,598 people who have received a citation since 2016, all 4,598 of them received a "CREDIT TIME SERVED" judgment at least once. Of those 4,598, 841 people have received more than one "CREDIT TIME SERVED" judgment.
-* The person with the highest credit_jail_judgments is Kevin P Shakesnider, who has received 136 individual "CREDIT TIME SERVED" judgments. Those 136 judgments were given across 22 distinct judgment dates.
-* The person with the second highest credit_jail_judgments count is BOBBY L ANDERSON JR, who has received 104 individual "CREDIT TIME SERVED" judgments. Those 104 judgments were given across 7 distinct judgment dates.
+* Of the 4,598 people who have received a citation since 2016, 1,066 of them received a "CREDIT TIME SERVED" judgment at least once. Of those 4,598, 845 people have received more than one "CREDIT TIME SERVED" judgment.
+* The person with the highest "CREDIT TIME SERVED" judgment count is Kevin P Shakesnider, who has received 136  judgments. Those 136 judgments were given across 22 distinct judgment dates.
+* The person with the second highest "CREDIT TIME SERVED" judgment count is BOBBY L ANDERSON JR, who has received 104  judgments. Those 104 judgments were given across 7 distinct judgment dates.
 * Note that although Patricia Norris has received the highest citation count, she has never received a "CREDIT TIME SERVED" judgment.
-
-### 7.2 Motion granted inmate
-
-#### 7.2.1 Individual jailed judgments
-
-How many individual people have received at least one MOTION GRANTED INMATE (FULL CREDIT) judgment? Who has received the most MOTION GRANTED INMATE (FULL CREDIT) judgments?
-
-```{r}
-unhoused |> 
-  group_by(refined_name) |> 
-  summarise(motion_jail_judgments = sum(judgment == "MOTION GRANTED INMATE (FULL CREDIT)")) |> 
-  filter(motion_jail_judgments > 0) |> 
-  arrange(desc(motion_jail_judgments))
-```
-
-#### 7.2.2 Distinct judgment dates
-
-Who has received the most MOTION GRANTED INMATE (FULL CREDIT) judgments on distinct judgment dates? 
-
-**Explanation:** oftentimes, courts decide on several citations for the same person on one day. For example, Kevin Shakesnider didn't receive all 136 of his CREDIT TIME SERVED judgments on 136 separate days, the courts gave him the same judgment date for several of his citations.
-
-```{r}
-unhoused |> 
-  filter(judgment == "MOTION GRANTED INMATE (FULL CREDIT)") |> 
-  distinct(refined_name, judgment_date) |> 
-  group_by(refined_name) |> 
-  summarise(motion_jail_judgment_days = n()) |> 
-  #filter(motion_jail_judgment_days > 1) |> 
-  arrange(desc(motion_jail_judgment_days))
-```
-
-#### 7.2.3 Data takeaway
-
-* Of the 4,598 people who have received a citation since 2016, 35 of them received a "MOTION GRANTED INMATE (FULL CREDIT)" judgment at least once. Of those 35, only one person has received more than one "MOTION GRANTED INMATE (FULL CREDIT)" judgment, and that is Robert F Living.
-* The person with the highest motion_jail_judgments is Melissa Clark, who has received 12 individual "MOTION GRANTED INMATE (FULL CREDIT)" judgments. Those 12 judgments were given one distinct judgment date.
-* Robert F Living is the only person with more than one "MOTION GRANTED INMATE (FULL CREDIT)" judgment day, at two judgment days. Between those two days, he received a total of four "MOTION GRANTED INMATE (FULL CREDIT)" judgments.
-
-### 7.3 Jail judgments over time
-
-What's the month with the most jail judgments from 2016 to present?
-
-```{r}
-unhoused |> 
-  filter(judgment == "CREDIT TIME SERVED") |>
-  group_by(jud_yr,
-           jud_mo_label,
-           jud_mo) |> 
-  summarise(
-    yr_mo_jail = n()) |> 
-  arrange(desc(yr_mo_jail))
-  #arrange(jud_yr, jud_mo)
-```
-
-#### 7.3.1 Data takeaways
-
-* SINCE 2016:
-  + The month with the highest "CREDIT TIME SERVED" judgments since 2016 is Jun. 2016 with 185 judgments. 
-* SINCE JULY 2023:
-  + The month with the highest "CREDIT TIME SERVED" judgments since July 2023 is Aug. 2023 with 57 citations.
 
 ## 8. Individual people analysis
 
 ### 8.1. Kevin P Shakesnider
 
-Shakesnider data takeaways refresher:
-* **Highest fines:** Kevin P Shakesnider is the person who has paid the highest amount of fines. He has paid about \$28,684 of his total \$44,453, and has had roughly \$10,438 dismissed. As of October 2025, he still owes about \$5,331.
-* **Highest "CREDIT TIME SERVED" judgments:** The person with the highest credit_jail_judgments is Kevin P Shakesnider, who has received 136 individual "CREDIT TIME SERVED" judgments. Those 136 judgments were given across 22 distinct judgment dates.
+Shakesnider data takeaways so far:
 
-#### 8.1.1 Highest "CREDIT TIME SERVED" judgments
+* **Highest paid cash and "cash + time served" fines:** Kevin P Shakesnider is the person who has paid the highest amount of fines when considering cash and time served combined. He is also the person who has paid the most fines in cash. He has been fined a total of \$45,125. He paid about \$26,108 with "CREDIT TIME SERVED," he paid \$2576 in cash, and has had roughly \$10,916 dismissed. As of November 2025, he still owes about \$5,525.
+* **Highest "CREDIT TIME SERVED" judgments:** He is also the person with the highest "CREDIT TIME SERVED" judgments at 136. Those 136 judgments were given across 22 distinct judgment dates.
+
+#### 8.1.1 "CREDIT TIME SERVED"
 
 When did Kevin P Shakesnider receive the highest jail citations in one judgment? What is the overall date range?
 
 ```{r}
-unhoused_distinct |> 
-  filter(refined_name == "SHAKESNIDER, KEVIN P") |>
-  group_by(judgment_date, violation_code) |>
- summarise(jail_count = n())
-```
-
-##### 8.1.1.1 Data takeaways
-
-All 21 of his judgment dates fall between Jan. 1 and Dec. 22 2016. On June 23, he received a "CREDIT TIME SERVED" judgment for 16 citations, his highest in one single day.
-
-#### 8.1.2 Plotting
-
-Plotting citations and violation type.
-
-##### 8.1.2.1 Preparing object
-
-```{r}
 shakesnider_jailed <- unhoused |> 
   filter(refined_name == "SHAKESNIDER, KEVIN P") |>
-  group_by(judgment_date, violation_code) |>
- summarise(jail_count = n())
+  group_by(judgment_date) |>
+  summarise(jail_count = n()) |> 
+  arrange(desc(jail_count))
 
 shakesnider_jailed
 ```
 
-### 8.2 Patricia Norris
+#### 8.1.2 Data takeaway
 
-#### 8.2.1 Highest citation count
+All 21 of his judgment dates fall between Jan. 13 2016 and Nov. 25 2015. On June 23, he received a "CREDIT TIME SERVED" judgment for 26 citations, his highest in one single day.
+
+### 8.2 Patricia Norris {#patricia-norris}
+
+Norris takeaway so far:
+
+* Patricia Norris has been charged the highest total fines at around \$199,123. She hasn't paid any of her fines, but has had about \$149,118 dismissed, which leaves about \$50,006 that she still owes. 
+
+#### 8.2.1 Visualizing
 
 Making Norris object.
 
@@ -1026,10 +1058,6 @@ norris <- unhoused |>
 norris
 ```
 
-#### 8.2.2 Plotting
-
-##### 8.2.2.1 Preparing to plot
-
 Checking for what kinds of violation codes Norris has been given.
 
 ```{r}
@@ -1037,7 +1065,7 @@ norris |>
   distinct(violation_code)
 ```
 
-Making the object.
+Making the object to plot.
 
 ```{r}
 norris_citations <- norris |> 
@@ -1048,7 +1076,7 @@ norris_citations <- norris |>
 norris_citations
 ```
 
-##### 8.2.2.2 Plotting - for summary
+##### 8.2.2.2 Plotting
 
 ```{r}
 norris_citations_plot <- ggplot(
@@ -1057,9 +1085,10 @@ norris_citations_plot <- ggplot(
            y = citation_count)) +
   geom_point(alpha = 1 / 3) +
   labs(
-    title = "Patricia Norris Citation Count by Offense Date",
-    x = "Offense Date",
-    y = "Citation Count"
+    title = "Patricia Norris citation count by offense date",
+    x = "Offense date",
+    y = "Citation count",
+    caption = "By Layla Dajani"
   ) +
   theme_minimal()
 
@@ -1071,21 +1100,26 @@ norris_citations_plot |> ggplotly()
 ###### 8.2.2.1.1 Data takeaways
 
 * Each one of these points is a day, so the higher the citation count, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from January 2020 to May 2025.
+* Norris has only ever received violation codes CC940 and CC941.
 
 ## 9. Mapping analysis
 
-### 9.1 Preparing mapping object
+Mapping citations by ordinance zones. Skip to section 9.2 for results.
+
+### 9.1 Preparing to plot map
+
+Setting up to map.
 
 #### 9.1.1 Importing district data
 
 Importing Houston district data as an sf object.
 
 ```{r}
-hou_districts <- st_read(
-  "https://mycity2.houstontx.gov/pubgis02/rest/services/HoustonMap/Administrative_Boundary/MapServer/2/query?where=1=1&outFields=*&f=geojson"
+hou_zones <- st_read(
+  "additional-materials/civility-ordinance-boundary.geojson"
 )
 
-hou_districts
+hou_zones
 ```
 
 #### 9.1.2 Simple feature
@@ -1093,115 +1127,193 @@ hou_districts
 Turning the addresses in a Simple Feature Collection.
 
 ```{r}
-pts <- st_as_sf(
+pts_zones <- st_as_sf(
   unhoused_distinct,
   coords = c("geocodio_longitude", "geocodio_latitude"),
   crs = 4326
 )
 
-pts |> glimpse()
+pts_zones |> glimpse()
 ```
 
 #### 9.1.3 Fixing invalid district lines
 
 ```{r}
-clean_districts <- st_make_valid(hou_districts) # this function goes through every polygon to fix problems like duplicate points and self intersections, which i was having trouble with.
+clean_zones <- st_make_valid(hou_zones)
 ```
 
 ```{r}
-cleaner_districts <- st_transform(clean_districts, 4326)
+cleaner_zones <- st_transform(clean_zones, 4326)
 ```
 
-#### 9.1.4 Citation to district
+#### 9.1.4 Citation to zone
 
-Assigning each citation to a district.
+Assigning each citation to a zone.
 
 ```{r}
-districting_citations <- st_join(pts, cleaner_districts, join = st_within)
+zoning_citations <- st_join(pts_zones, cleaner_zones, join = st_within)
 
-districting_citations
+zoning_citations
 ```
 
 Cleaning names after joining:
 
 ```{r}
-districting_citations_clean <- districting_citations |> 
+zoning_citations_clean <- zoning_citations |> 
   clean_names()
 
-districting_citations_clean |> glimpse()
+zoning_citations_clean |> glimpse()
 ```
 
-### 9.2 Citations by district
+#### 9.1.5 Citations by zone
 
-Which district has received the most citations from 2016 to Sept. 2025? 
+Which zone has received the most citations from 2016 to Sept. 2025? 
 
-#### 9.2.1 Counting citation per district
+#### 9.1.6 Counting citation per zone
 
-Grouping data by district, preparing to map.
+Grouping data by zone, preparing to map.
 
 ```{r}
-district_counts <- districting_citations_clean |>
-  st_drop_geometry() |> # this removes the geometry so we can summarize citation points, but i will add geometry back to map @ double check missing zones
-  count(district, name = "citation_count")
+zone_counts <- zoning_citations_clean |>
+  st_drop_geometry() |>
+  count(name, name = "citation_count")
 
-district_counts
+zone_counts
 ```
 
-#### 9.2.2 Rejoining
+#### 9.1.7 Rejoining
 
-Cleaning cleaner_district names before joining.
+Cleaning cleaner_zone names before joining.
 
 ```{r}
-cleaner_names_districts <- clean_names(cleaner_districts)
-
-cleaner_names_districts |> glimpse()
+cleaner_names_zones <- clean_names(cleaner_zones)
+ 
+cleaner_names_zones |> glimpse()
 ```
 
 Joining
 
 ```{r}
-unhoused_to_map <- cleaner_names_districts |>
-  left_join(district_counts, by = "district")
+zones_to_map <- cleaner_names_zones |>
+  left_join(zone_counts, by = "name")
 
-unhoused_to_map
+zones_to_map
 ```
 
-### 9.6 Plotting
+### 9.2 Plotting {#plotting}
 
-#### 9.6.1 General ggplot
-
-Plotting a stagnant heat map to show each district's citations.
-
-```{r}
-ggplot(unhoused_to_map) +
-  geom_sf(aes(fill = citation_count), color = "white", size = 0.3) +
-  scale_fill_viridis_c(option = "plasma", na.value = "grey90") +
-  labs(
-    title = "Citations given to unhoused people by Houston City Council district",
-    caption = "By Layla Dajani",
-    fill = "Citations",
-    x = "Longitude",
-    y = "Latitude"
-  ) +
-  theme_minimal()
-```
-
-#### 9.6.1 General mapview
+#### 9.2.1 General mapview
 
 Plotting an interactive heat map to show each district's citations.
 
 ```{r}
 mapview(
-  unhoused_to_map,
+  zones_to_map,
   zcol = "citation_count",
-  popup = c("district", "citation_count"),
+  popup = c("name", "citation_count"),
   layer.name = "Citations"
-) #@ by percentage increase two years before and after
+) 
 ```
 
+#### 9.2.2 Zones over time
 
+Visualizing each zone's citation count by year in stacked bar charts, one by citation count and the other by citation percentage.
 
+##### 9.2.2.1 By count
 
+###### 9.2.2.1.1 Making object
 
+```{r}
+zone_year_counts <- zoning_citations_clean |>
+  st_drop_geometry() |>
+  group_by(off_yr, name) |>
+  summarise(citation_count = n()) |> 
+  arrange(desc(citation_count))
 
+zone_year_counts
+```
 
+###### 9.2.2.1.2 Plotting
+
+```{r}
+zone_year_counts_plot <- ggplot(
+  zone_year_counts, 
+  aes(x = factor(off_yr), 
+      y = citation_count, 
+      fill = name)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c(
+  "#E41A1C",
+  "#377EB8",
+  "#4DAF4A",
+  "#FF7F00",
+  "#984EA3",
+  "#FFFF33",
+  "#A65628",
+  "#F781BF",
+  "#999999",
+  "#66C2A5",
+  "#FC8D62"   
+  )) +
+  labs(
+    x = "Year",
+    y = "Citation count",
+    fill = "Zone",
+    title = "Citation counts per zone by year",
+    caption = "By Layla Dajani"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+zone_year_counts_plot |> 
+  ggplotly()
+```
+
+##### 9.2.2.2 By percentage
+
+###### 9.2.2.2.1 Making object
+
+```{r}
+zone_year_pct <- zone_year_counts |>
+  group_by(off_yr) |>
+  mutate(citation_pct = round(citation_count / sum(citation_count) * 100, 1)) |> 
+  arrange(desc(citation_pct))
+
+zone_year_pct
+```
+
+###### 9.2.2.2.2 Plotting
+
+```{r}
+zone_year_pct_plot <- ggplot(
+  zone_year_pct, 
+  aes(x = factor(off_yr), 
+      y = citation_pct, 
+      fill = name)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c(
+  "#E41A1C",
+  "#377EB8",
+  "#4DAF4A",
+  "#FF7F00",
+  "#984EA3",
+  "#FFFF33",
+  "#A65628",
+  "#F781BF",
+  "#999999",
+  "#66C2A5",
+  "#FC8D62"   
+  )) +
+  labs(
+    x = "Year",
+    y = "Percentage",
+    fill = "Zone",
+    title = "Citation percentages per zone by year",
+    caption = "By Layla Dajani"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+zone_year_pct_plot |> 
+  ggplotly()
+```

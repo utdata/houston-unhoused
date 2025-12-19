@@ -8,13 +8,11 @@ format: html
 1. Import all data
 2. Merge all sheets
 3. Remove duplicate rows
-4. Geocoding
-5. Fix date data types and group by dates
-6. Clean names in OpenRefine
-7. Create new columns
-8. Select and rename final columns
-9. Export clean data
-
+4. Geocode
+5. Clean names in OpenRefine
+6. Fix date data types and group by dates
+7. Create and rename final columns
+8. Export clean data
 
 ## Setup
 
@@ -247,9 +245,10 @@ unhoused_to_refine <- unhoused_geocoded |>
 unhoused_to_refine |> glimpse()
 ```
 
-### 5.2 Importing from OpenRefine
+### 5.2 Importing from OpenRefine {#importing-from-open-refine}
 
 Importing data from OpenRefine. Here are the changes made:
+
 * Clustered misspelled and varied names.
 * Created a column that standardizes some judgments more generally.
 * Created a column that standardizes some dispositions more generally.
@@ -271,7 +270,7 @@ unhoused_refined |> glimpse()
 Changing offense_date and judgment_date data types from <dttm> to <date>.
 
 ```{r}
-unhoused_data_types <- unhoused_refined |> #@ change this when refine/geocoding done
+unhoused_data_types <- unhoused_refined |>
   mutate(offense_date = as_date(offense_date),
          judgment_date = as_date(judgment_date),
         )
