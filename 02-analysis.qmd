@@ -69,8 +69,11 @@ library(DT)
 ## Importing
 
 ```{r}
+#| message: false
+#| warning: false
+
 unhoused <- read_csv("data-processed/unhoused-clean.csv")
-unhoused |> glimpse()
+# unhoused |> glimpse()
 ```
 
 ## 1. Creating distinct object {#creating-distinct-object}
@@ -87,7 +90,7 @@ unhoused_distinct <- unhoused |>
          jud_mo_label = factor(jud_mo_label, levels = month.abb, ordered = TRUE)
         )
 
-unhoused_distinct |> glimpse()
+# unhoused_distinct |> glimpse()
 ```
 
 ## 2. Citation numbers over time {#citation-numbers-over-time}
@@ -103,7 +106,7 @@ What is the year with the most citations?
 ```{r}
 unhoused_yearly <- unhoused_distinct |> # unhoused_distinct ensures every row counts as an individual citation
   group_by(off_floor_yr, off_yr, whitmire_offense) |> 
-  summarize(yearly_citations = n()) |> 
+  summarize(yearly_citations = n(), .groups = "drop") |> 
   arrange(off_floor_yr) 
 
 unhoused_yearly
@@ -151,7 +154,8 @@ monthly_citations <- unhoused_distinct |>
   filter(offense_date >= "2023-07-01") |>  # looking 6 months before Whitmire's term started to see if there is an uptick in citations after Jan. 2024.
   group_by(off_floor_mo, whitmire_offense) |> # adding Whitmire offense for plotting
   summarise(
-    monthly_citations = n()) |> 
+    monthly_citations = n(),
+    .groups = "drop") |> 
     arrange(off_floor_mo)
 
 monthly_citations
@@ -204,7 +208,8 @@ monthly_citations_plot |>
 monthly_citations_all <- unhoused_distinct |> 
   group_by(off_floor_mo, whitmire_offense) |> # adding whitmire_offense for plotting
   summarise(
-    yr_mo_off = n()) |>
+    yr_mo_off = n(),
+    .groups = "drop") |>
   arrange(off_floor_mo)
 
 monthly_citations_all
@@ -215,12 +220,15 @@ monthly_citations_all
 Plotting a line graph to show a monthly citation count between Jan. 2016 and Nov. 2025. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes. 
 
 ```{r}
+#| warning: false
+#| message: false
+
 monthly_citations_all_plot <- ggplot(
   monthly_citations_all, 
   aes(x = off_floor_mo, 
       y = yr_mo_off, 
       color = whitmire_offense)) +
-  geom_line(size = 0.9) +
+  geom_line(linewidth = 0.9) +
   geom_point(size = 0.8) +
   geom_vline(xintercept = ymd("2024-01-01"),
              linetype = "dashed", 
@@ -267,7 +275,8 @@ mo_avg_citations <- unhoused_distinct |>
   group_by(off_yr,
            off_floor_mo,
            off_mo_label) |> 
-  summarise(yr_mo_off = n()) |> 
+  summarise(yr_mo_off = n(),
+           .groups = "drop") |> 
   group_by(off_mo_label) |> 
   summarise(avg_mo_off = round(mean(yr_mo_off), 1)) |> 
   arrange(off_mo_label)
@@ -313,7 +322,8 @@ Finding the most common violation types.
 ```{r}
 violation_count <- unhoused_distinct |> 
   group_by(violation_description_refined, violation_code) |> 
-  summarise(violations = n()) |> 
+  summarise(violations = n(),
+            .groups = "drop") |> 
   arrange(desc(violations))
 
 violation_count
@@ -352,10 +362,11 @@ Plotting yearly violation code totals from Jan. 1, 2016 to Nov. 20, 2025. Note t
 unhoused_violations <- unhoused_distinct |> 
   group_by(off_floor_yr,
            violation_code)|> 
-  summarise(violations = n()) |> 
+  summarise(violations = n(),
+            .groups = "drop") |> 
   arrange(off_floor_yr)
 
-unhoused_violations |> glimpse()
+# unhoused_violations |> glimpse()
 ```
 
 #### 3.2.2 Plotting
@@ -377,7 +388,6 @@ unhoused_violations_plot <- ggplot(
     title = str_wrap("Number of citations by year broken down by violation code from Jan. 2016 to Nov. 2025"),
     subtitle = "Violation codes CC753, CC942, CC943, CC948 and CC956 first appeared in 2025.",
     caption = "By Layla Dajani",
-    fill = "Citations",
     x = "Year",
     y = "Citations per year"
   ) +
@@ -461,6 +471,8 @@ types_by_month_22
 Note that November 2025 is an incomplete month and does not reflect its data wholly. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes.
 
 ```{r}
+#| message: false
+
 types_by_month_22_plot <- ggplot(
   types_by_month_22,
   aes(x = off_floor_mo, 
@@ -598,6 +610,8 @@ types_over_time
 Note that November 2025 is an incomplete month and does not reflect its data wholly. The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes.
 
 ```{r}
+#| message: false
+
 types_over_time_plot <- ggplot(
   types_over_time,
   aes(x = off_floor_mo, 
@@ -1079,6 +1093,8 @@ norris_citations
 ##### 8.2.2.2 Plotting
 
 ```{r}
+#| message: false
+
 norris_citations_plot <- ggplot(
   norris_citations, 
        aes(x = offense_date, 
@@ -1115,11 +1131,14 @@ Setting up to map.
 Importing Houston district data as an sf object.
 
 ```{r}
+#| message: false
+#| warning: false
+
 hou_zones <- st_read(
   "additional-materials/civility-ordinance-boundary.geojson"
 )
 
-hou_zones
+# hou_zones
 ```
 
 #### 9.1.2 Simple feature
@@ -1133,16 +1152,14 @@ pts_zones <- st_as_sf(
   crs = 4326
 )
 
-pts_zones |> glimpse()
+# pts_zones |> glimpse()
 ```
 
 #### 9.1.3 Fixing invalid district lines
 
 ```{r}
 clean_zones <- st_make_valid(hou_zones)
-```
 
-```{r}
 cleaner_zones <- st_transform(clean_zones, 4326)
 ```
 
@@ -1151,9 +1168,11 @@ cleaner_zones <- st_transform(clean_zones, 4326)
 Assigning each citation to a zone.
 
 ```{r}
+#| message: false
+
 zoning_citations <- st_join(pts_zones, cleaner_zones, join = st_within)
 
-zoning_citations
+# zoning_citations
 ```
 
 Cleaning names after joining:
@@ -1162,14 +1181,12 @@ Cleaning names after joining:
 zoning_citations_clean <- zoning_citations |> 
   clean_names()
 
-zoning_citations_clean |> glimpse()
+# zoning_citations_clean |> glimpse()
 ```
 
 #### 9.1.5 Citations by zone
 
 Which zone has received the most citations from 2016 to Sept. 2025? 
-
-#### 9.1.6 Counting citation per zone
 
 Grouping data by zone, preparing to map.
 
@@ -1181,26 +1198,17 @@ zone_counts <- zoning_citations_clean |>
 zone_counts
 ```
 
-#### 9.1.7 Rejoining
 
-Cleaning cleaner_zone names before joining.
+### 9.2 Plotting {#plotting}
+
+Cleaning cleaner_zone names and joining.
 
 ```{r}
 cleaner_names_zones <- clean_names(cleaner_zones)
  
-cleaner_names_zones |> glimpse()
-```
-
-Joining
-
-```{r}
 zones_to_map <- cleaner_names_zones |>
   left_join(zone_counts, by = "name")
-
-zones_to_map
 ```
-
-### 9.2 Plotting {#plotting}
 
 #### 9.2.1 General mapview
 
@@ -1227,7 +1235,8 @@ Visualizing each zone's citation count by year in stacked bar charts, one by cit
 zone_year_counts <- zoning_citations_clean |>
   st_drop_geometry() |>
   group_by(off_yr, name) |>
-  summarise(citation_count = n()) |> 
+  summarise(citation_count = n(),
+            .groups = "drop") |> 
   arrange(desc(citation_count))
 
 zone_year_counts

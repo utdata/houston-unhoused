@@ -44,7 +44,7 @@ However, to put that in the larger context, October 2025 only had 61.5% of the J
 
 See more about citation counts over time in [section 2](02-analysis.html#citation-numbers-over-time) of the analysis notebook.
 
-#### 3.2 Violations typess
+#### 3.2 Violations types
 
 There are seven types of violation codes that have been given since 2016:
 
