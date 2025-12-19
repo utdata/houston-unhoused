@@ -5,11 +5,11 @@ project:
   - "*.qmd"
 
 website:
-  title: "Short site name"
+  title: "Houston Unhoused"
   sidebar:
     contents:
       - href: index.qmd
-        text: Home
+        text: Overview
       - auto: "*.qmd"
 
 format:
