@@ -11,9 +11,9 @@ title: "Houston Unhoused"
 
 ## 1. About this data
 
-This project is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media. 
+This is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media. 
 
-It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan. 1, 2016 to Oct. 28, 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.
+It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan. 1, 2016 to Nov. 20, 2025, and includes columns detailing defendant information, offense date, offense location, court judgment date, fines information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.
 
 John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences before and after his term began. 
 
@@ -44,7 +44,7 @@ However, to put that in the larger context, October 2025 only had 61.5% of the J
 
 See more about citation counts over time in [section 2](02-analysis.html#citation-numbers-over-time) of the analysis notebook.
 
-#### 3.2 Violations typess
+#### 3.2 Violations types
 
 There are seven types of violation codes that have been given since 2016:
 
@@ -66,7 +66,7 @@ CC940 and CC941 monthly citation numbers follow similar trends throughout the ye
 
 This is further displayed in [analysis 3.3.3.2](02-analysis.html#plotting-3-3-3-2).
 
-Following Whitmire's introduction three new sidewalk obstruction ordinances this year, October 2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.
+Following Whitmire's introduction of three new sidewalk obstruction ordinances this year, October 2025 had highest sidewalk obstruction citations per month in this data set. The 127 citations made up around 38% of all citations given that month.
 
 ![](figures/types-over-time-plot.png)
 

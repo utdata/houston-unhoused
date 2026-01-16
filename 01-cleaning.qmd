@@ -267,7 +267,7 @@ unhoused_refined |> glimpse()
 
 ### 6.1 Fixing data types
 
-Changing offense_date and judgment_date data types from <dttm> to <date>.
+Changing offense_date and judgment_date data types from "dttm" to "date."
 
 ```{r}
 unhoused_data_types <- unhoused_refined |>
