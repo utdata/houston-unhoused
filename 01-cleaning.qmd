@@ -229,12 +229,25 @@ unhoused_no_dupes |> glimpse()
 
 ### 4.1 Preparing to geocode
 
+#### 4.1.1 Reformatting addresses
+
 Reformatting addresses to prepare to geocode externally using geocodeio.
 
 ```{r}
-unhoused_to_geocode <- unhoused_no_dupes |>
+unhoused_reformatted <- unhoused_no_dupes |>
   mutate(full_address = paste(str_remove(offense_location, ","),
                               "Houston, TX", sep = ", "))
+
+unhoused_reformatted |> glimpse()
+```
+
+#### 4.1.2 Isolating fifth batch
+
+Isolation data from "unhoused_5" to geocode.
+
+```{r}
+unhoused_to_geocode <- unhoused_reformatted |> 
+  filter(data_origin == "unhoused_5")
 
 unhoused_to_geocode |> glimpse()
 ```
