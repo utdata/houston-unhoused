@@ -1274,21 +1274,53 @@ Grouping data by zone, preparing to map.
 ```{r}
 zone_counts <- zoning_citations_clean |>
   st_drop_geometry() |>
-  count(name, name = "citation_count")
+  count(name, name = "citation_count") |> 
+  arrange(desc(citation_count))
 
 zone_counts
 ```
 
+##### 9.1.5.1 With date
+
+Making a version of the zoned object that includes each offense's floor month.
+
+```{r}
+zone_counts_monthly <- zoning_citations_clean |>
+  st_drop_geometry() |>
+  count(off_floor_mo,
+        name, 
+        name = "citation_count")
+
+# zone_counts_monthly
+```
+
+Cleaning cleaner_zone names and joining with the monthly zoned object.
+
+```{r}
+cleaner_names_zones <- clean_names(cleaner_zones)
+ 
+zones_to_map_monthly <- cleaner_names_zones |>
+  left_join(zone_counts_monthly, by = "name")
+
+# head(zones_to_map_monthly)
+```
+
+Exporting.
+
+```{r}
+zones_to_map_monthly |>
+  write_csv("data-processed/requested-files/zones-to-map.csv")
+```
 
 ### 9.2 Plotting {#plotting-9.2}
 
-Cleaning cleaner_zone names and joining.
+Cleaning cleaner_zone names and joining with the zoned object.
 
 ```{r}
 cleaner_names_zones <- clean_names(cleaner_zones)
  
 zones_to_map <- cleaner_names_zones |>
-  left_join(zone_counts, by = "name") 
+  left_join(zone_counts, by = "name")
 ```
 
 #### 9.2.1 General mapview
