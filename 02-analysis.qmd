@@ -1649,3 +1649,29 @@ zone_mo_pct_plot <- ggplot(
 zone_mo_pct_plot |> 
   ggplotly()
 ```
+
+## 10 last bit
+
+Closing out with some specifics on this. 
+
+```{r}
+zoning_citations_clean |> 
+  st_drop_geometry() |>
+  filter(off_floor_mo >= "2025-11-01") |> 
+  filter(str_detect(name, "East")) |> 
+  count(name, name = "NovDec_citations") |> 
+  adorn_totals() |>
+  as_tibble()
+```
+
+This is all citations in 2025 by area, which shows Central Business District totals. 
+
+```{r}
+zoning_citations_clean |> 
+  st_drop_geometry() |>
+  filter(off_yr == 2025) |> 
+  count(name, name = "2025 citations")
+```
+
+
+
