@@ -53,6 +53,12 @@ Data set 4.
 unhoused_raw_4 <- suppressWarnings(read_excel("data-raw/unhoused-raw-4.xlsx"))
 ```
 
+Data set 5.
+
+```{r}
+unhoused_raw_5 <- suppressWarnings(read_excel("data-raw/unhoused-raw-5.xlsx"))
+```
+
 ## 2. Merging data sets
 
 ### 2.1 Evaluating merge readiness
@@ -64,6 +70,7 @@ unhoused_raw_1 |> glimpse()
 unhoused_raw_2 |> glimpse()
 unhoused_raw_3 |> glimpse()
 unhoused_raw_4 |> glimpse()
+unhoused_raw_5 |> glimpse()
 ```
 
 ### 2.3 Cleaning names
@@ -103,6 +110,15 @@ unhoused_names_4 <- unhoused_raw_4 |>
   clean_names()
 
 unhoused_names_4 |> glimpse()
+```
+
+#### 2.3.5 Data set 5
+
+```{r}
+unhoused_names_5 <- unhoused_raw_5 |> 
+  clean_names()
+
+unhoused_names_5 |> glimpse()
 ```
 
 ### 2.4 Preparing to merge
@@ -160,12 +176,25 @@ unhoused_tidy_4 <- unhoused_names_4 |>
 unhoused_tidy_4 |> glimpse()
 ```
 
+#### 2.4.5 Data set 5
+
+Fixing phone_number data type and adding data_origin column to data set 5. Renaming columns to match the other data sets.
+
+```{r}
+unhoused_tidy_5 <- unhoused_names_5 |> 
+  rename(phone_number = defendant_phone_number) |> 
+  mutate(phone_number = as.character(phone_number),
+         data_origin = "unhoused_5")
+
+unhoused_tidy_5 |> glimpse()
+```
+
 ### 2.5 Merging sheets
 
 Merging sheets.
 
 ```{r}
-unhoused_merged <- bind_rows(unhoused_tidy_1, unhoused_tidy_2, unhoused_tidy_3, unhoused_tidy_4)
+unhoused_merged <- bind_rows(unhoused_tidy_1, unhoused_tidy_2, unhoused_tidy_3, unhoused_tidy_4, unhoused_tidy_5)
 
 unhoused_merged |> glimpse()
 ```
@@ -174,7 +203,7 @@ unhoused_merged |> glimpse()
 
 ### 3.1 Finding dupes
 
-This shows both duplicates, so there are actually 89 (178/2) pairs of duplicates.
+This shows both duplicates, so there are actually 219 (438/2) pairs of duplicates.
 
 ```{r}
 unhoused_merged |> 
@@ -183,51 +212,148 @@ unhoused_merged |>
 
 ### 3.2 Removing dupes
 
-Proof it worked: subtract the number of duplicate pairs (89) from the total number of rows (30,611), that is how many rows are outputted below (30,522).
+Proof it worked: subtract the number of duplicate pairs (219) from the total number of rows (31,626), that is how many rows are outputted below (31,407).
 
 ```{r}
-unhoused_to_geocode <- unhoused_merged |>
+unhoused_no_dupes <- unhoused_merged |>
   arrange(desc(data_origin)) |> # distinct() keeps the first row between two duplicates, so arranging it in descending order by data_origin, it makes sure we keep the most recent row
   distinct(across(!c(
     data_origin, 
     defendant_address)),
     .keep_all = TRUE)
 
-unhoused_to_geocode |> glimpse()
+unhoused_no_dupes |> glimpse()
 ```
 
 ## 4. Geocoding
 
-### 4.1 Preparing to geocode
+### 4.1 Reformatting addresses
 
 Reformatting addresses to prepare to geocode externally using geocodeio.
 
 ```{r}
-unhoused_geo_prep <- unhoused_to_geocode |>
+unhoused_reformatted <- unhoused_no_dupes |>
   mutate(full_address = paste(str_remove(offense_location, ","),
                               "Houston, TX", sep = ", "))
 
-unhoused_geo_prep |> glimpse()
+unhoused_reformatted |> glimpse()
 ```
 
-### 4.2 Exporting pre-geocode
+### 4.2 Geocoding sets 1-4
 
-Exporting the data to geocode in geocodio.
+#### 4.2.1 Isolating sets 1-4
+
+Isolating data sets from 1-4 to geocode.
 
 ```{r}
-unhoused_geo_prep |>
-  write_csv("data-processed/unhoused-pregeocoded.csv")
+unhoused_to_geocode_1 <- unhoused_reformatted |> 
+  filter(!c(data_origin == "unhoused_5"))
+
+unhoused_to_geocode_1 |> glimpse()
 ```
 
-### 4.3 Importing geocoded
+#### 4.2.2 Exporting pre-geocode sets 1-4
 
-Importing the geocoded data from geocodio and cleaning column names.
+Exporting data sets 1-4 to geocode in geocodio.
 
 ```{r}
-unhoused_geocoded <- read_csv("data-processed/unhoused-geocoded.csv") |> 
+unhoused_to_geocode_1 |>
+  write_csv("data-processed/unhoused-to-geocode-1.csv")
+```
+
+#### 4.2.3 Importing geocoded
+
+Importing the latest batch of geocoded data from geocodio and cleaning column names. @NOTE: There are more rows here than previously exported because this batch was geocoded before receiving fifth data set. unhoused_4 decreased in rows after introducing unhoused_5 because there was overlap between the two, and we kept most updated data in unhoused_5 --- so no rows were lost, just transferred. This just means it will be necessary to remove duplicates again after merging in 4.4.
+
+```{r}
+unhoused_geocoded_1 <- read_csv("data-processed/unhoused-geocoded-1.csv") |> 
   clean_names() # the new geocoded columns didn't have clean names
 
-unhoused_geocoded |> glimpse()
+unhoused_geocoded_1 |> glimpse()
+```
+
+### 4.3 Geocoding set 5
+
+#### 4.2.1 Isolating set 5
+
+Isolating data set 5 to geocode.
+
+```{r}
+unhoused_to_geocode_2 <- unhoused_reformatted |> 
+  filter(data_origin == "unhoused_5")
+
+unhoused_to_geocode_2 |> glimpse()
+```
+
+#### 4.2.2 Exporting pre-geocode
+
+Exporting data set 5 to geocode in geocodio.
+
+```{r}
+unhoused_to_geocode_2 |>
+  write_csv("data-processed/unhoused-to-geocode-2.csv")
+```
+
+#### 4.2.3 Importing geocoded
+
+Importing geocoded data set 5 from geocodio and cleaning column names.
+
+```{r}
+unhoused_geocoded_2 <- read_csv("data-processed/unhoused-geocoded-2.csv") |> 
+  clean_names() # the new geocoded columns didn't have clean names
+
+unhoused_geocoded_2 |> glimpse()
+```
+
+### 4.4 Merging
+
+Merging the latest batch of geocoded data with the rest of the data set.
+
+#### 4.4.1 Preparing to merge
+
+The data sets have mismatched phone_number data types, this fixes that.
+
+```{r}
+unhoused_geocoded_1_fixed <- unhoused_geocoded_1 |> 
+  mutate(phone_number = as.character(phone_number))
+         
+unhoused_geocoded_1_fixed |> glimpse()
+```
+
+#### 4.4.2 Merging
+
+```{r}
+unhoused_geocoded_merged <- bind_rows(unhoused_geocoded_1_fixed, unhoused_geocoded_2)
+
+unhoused_geocoded_merged |> glimpse()  
+```
+
+### 4.5 Removing duplicates
+
+See 4.2.3 for explanation on why this is necessary again.
+
+#### 4.5.1 Finding dupes
+
+This shows both duplicates, so there are actually 130 (260/2) pairs of duplicates.
+
+```{r}
+unhoused_geocoded_merged |> 
+   get_dupes(!c(data_origin, defendant_address))
+```
+
+#### 4.5.2 Removing dupes
+
+Proof it worked: subtract the number of duplicate pairs (130) from the total number of rows (31,537), that is how many rows are outputted below (31,407).
+
+```{r}
+unhoused_geocoded_no_dupes <- unhoused_geocoded_merged |>
+  arrange(desc(data_origin)) |> # distinct() keeps the first row between two duplicates, so arranging it in descending order by data_origin, it makes sure we keep the most recent row
+  distinct(across(!c(
+    data_origin, 
+    defendant_address)),
+    .keep_all = TRUE)
+
+unhoused_geocoded_no_dupes |> glimpse()
 ```
 
 ## 5. OpenRefine
@@ -239,7 +365,7 @@ Exporting cleaned data to clean further in OpenRefine. Everything accomplished i
 Exporting clean data to clean more in OpenRefine.
 
 ```{r}
-unhoused_to_refine <- unhoused_geocoded |> 
+unhoused_to_refine <- unhoused_geocoded_no_dupes |> 
   write_csv("data-processed/unhoused-to-refine.csv")
 
 unhoused_to_refine |> glimpse()
@@ -267,7 +393,7 @@ unhoused_refined |> glimpse()
 
 ### 6.1 Fixing data types
 
-Changing offense_date and judgment_date data types from <dttm> to <date>.
+Changing offense_date and judgment_date data types from "dttm" to "date."
 
 ```{r}
 unhoused_data_types <- unhoused_refined |>
