@@ -288,5 +288,15 @@
     "crumbs": [
       "Analysis"
     ]
+  },
+  {
+    "objectID": "02-analysis.html#last-bit",
+    "href": "02-analysis.html#last-bit",
+    "title": "Analysis",
+    "section": "10 last bit",
+    "text": "10 last bit\nClosing out with some specifics on this.\n\n\nExpand this to see code\nzoning_citations_clean |&gt; \n  st_drop_geometry() |&gt;\n  filter(off_floor_mo &gt;= \"2025-11-01\") |&gt; \n  filter(str_detect(name, \"East\")) |&gt; \n  count(name, name = \"NovDec_citations\") |&gt; \n  adorn_totals() |&gt;\n  as_tibble()\n\n\n\n  \n\n\n\nThis is all citations in 2025 by area, which shows Central Business District totals.\n\n\nExpand this to see code\nzoning_citations_clean |&gt; \n  st_drop_geometry() |&gt;\n  filter(off_yr == 2025) |&gt; \n  count(name, name = \"2025 citations\")",
+    "crumbs": [
+      "Analysis"
+    ]
   }
 ]
