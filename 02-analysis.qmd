@@ -1282,7 +1282,7 @@ zone_counts
 
 ##### 9.1.5.1 With date
 
-Making a version of the zoned object that includes each offense's floor month.
+Making a version of the zoned object that includes each offense's floor month to plot externally.
 
 ```{r}
 zone_counts_monthly <- zoning_citations_clean |>
@@ -1291,7 +1291,7 @@ zone_counts_monthly <- zoning_citations_clean |>
         name, 
         name = "citation_count")
 
-# zone_counts_monthly
+zone_counts_monthly
 ```
 
 Cleaning cleaner_zone names and joining with the monthly zoned object.
@@ -1310,6 +1310,34 @@ Exporting.
 ```{r}
 zones_to_map_monthly |>
   write_csv("data-processed/requested-files/zones-to-map.csv")
+```
+
+##### 9.1.5.2 East End before Nov. 2025
+
+Making a zoned object of all citations given in the East End Area prior to November 2025, which is when the zone was officially added to the ordinance.
+
+```{r}
+east_end_citations <- zoning_citations_clean |>
+  st_drop_geometry() |>
+  filter(name == "East End Area",
+         offense_date <= "2025-10-31") |> 
+  select(citation_number,
+         case_number,
+         offense_date,
+         refined_name,
+         violation_code,
+         full_offense_location,
+         zone = name) |> 
+  arrange(offense_date)
+
+east_end_citations
+```
+
+Exporting.
+
+```{r}
+east_end_citations |>
+  write_csv("data-processed/requested-files/east_end_citations.csv")
 ```
 
 ### 9.2 Plotting {#plotting-9.2}
