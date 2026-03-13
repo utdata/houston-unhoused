@@ -95,6 +95,7 @@ unhoused_distinct <- unhoused |>
         )
 
 # unhoused_distinct |> glimpse()
+unhoused_distinct |> nrow()
 ```
 
 ## 2. Citation numbers over time {#citation-numbers-over-time}
@@ -330,6 +331,19 @@ mo_avg_citations_plot |>
 #### 2.3.3 Data takeaways
 
 * January is the month that draws the most citations. But note that surges in specific years could be driving the averages higher in certain months. For instance, January 2016 and 2021 had exceptionally high citation counts, seen in figure 2.2.2.1.
+
+### 2.4 Citations after expansion
+
+Here we want to find the number of citations in the first half of 2026 (before the expansion to 24/7) and then in the later half.
+
+```{r}
+unhoused_distinct |> 
+  filter(off_yr == 2025) |> 
+  mutate(expan_flag = if_else(off_mo < 7, "first half", "second half")) |> 
+  count(expan_flag, name = "citations")
+```
+
+There were 1,021 citations from January through June 2025 and 1,955 citations from July through December 2025.
 
 ## 3. Violation types {#violation-types}
 
@@ -910,7 +924,7 @@ individual_fines |>
   + 14 people have paid over $1,000 in "not credit." The top three in descending order are Shakesnider, Melissa Clark and Robin Harrison.
 * Paid the most in time served:
   + Bobby L Anderson Jr. has paid the most fines with "time served." He has been fined roughly \$38,245. Of that sum, he paid \$26,489 with time served, none in "not credit" and had about \$9,287 dismissed.
-
+  
 ## 6. Fines
 
 1. How many distinct people are there who were fined?
@@ -1198,6 +1212,68 @@ norris_citations_plot |> ggplotly()
 
 * Each one of these points is a day, so the higher the citation count, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from January 2020 to May 2025.
 * Norris has only ever received violation codes CC940 and CC941.
+
+START FRANKLIN HERE
+
+### 8.3 Trazawell Franklin {#trazawell-franklin}
+
+Trazawell Franklin is quoted in the story.
+
+#### 8.3.1 Visualizing
+
+Making Franklin object.
+
+```{r}
+franklin <- unhoused |> 
+  filter(refined_name == "FRANKLIN, TRAZAWELL")
+
+franklin
+```
+
+Checking for what kinds of violation codes Franklin has been given.
+
+```{r}
+franklin |> 
+  distinct(violation_code)
+```
+
+Making the object to plot.
+
+```{r}
+franklin_citations <- franklin |> 
+  group_by(offense_date) |> 
+  summarise(citation_count = n()) |>
+  arrange(offense_date)
+
+franklin_citations
+```
+
+##### 8.3.1.1 Plotting
+
+```{r}
+#| message: false
+
+franklin_citations_plot <- ggplot(
+  franklin_citations, 
+       aes(x = offense_date, 
+           y = citation_count)) +
+  geom_point(alpha = 1 / 3) +
+  labs(
+    title = "Trazawell Franklin citation count by offense date",
+    x = "Offense date",
+    y = "Citation count",
+    caption = "By Layla Dajani"
+  ) +
+  theme_minimal()
+
+ggsave("figures/franklin_citations_plot.png")
+
+franklin_citations_plot |> ggplotly()
+```
+
+##### 8.3.1.2 Data takeaways
+
+* Each one of these points is a day, so the higher the citation count, the more citations received in a single day. Franklin received six citations on three occasions.
 
 ## 9. Mapping analysis
 
@@ -1601,3 +1677,29 @@ zone_mo_pct_plot <- ggplot(
 zone_mo_pct_plot |> 
   ggplotly()
 ```
+
+## 10 last bit
+
+Closing out with some specifics on this. 
+
+```{r}
+zoning_citations_clean |> 
+  st_drop_geometry() |>
+  filter(off_floor_mo >= "2025-11-01") |> 
+  filter(str_detect(name, "East")) |> 
+  count(name, name = "NovDec_citations") |> 
+  adorn_totals() |>
+  as_tibble()
+```
+
+This is all citations in 2025 by area, which shows Central Business District totals. 
+
+```{r}
+zoning_citations_clean |> 
+  st_drop_geometry() |>
+  filter(off_yr == 2025) |> 
+  count(name, name = "2025 citations")
+```
+
+
+
