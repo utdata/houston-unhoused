@@ -134,7 +134,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#about-this-data" id="toc-about-this-data" class="nav-link active" data-scroll-target="#about-this-data">1. About this data</a></li>
+  <li><a href="#about-this-project" id="toc-about-this-project" class="nav-link active" data-scroll-target="#about-this-project">1. About this project</a></li>
+  <li><a href="#about-the-data" id="toc-about-the-data" class="nav-link" data-scroll-target="#about-the-data">2. About the data</a></li>
   <li><a href="#limitations-and-considerations-2" id="toc-limitations-and-considerations-2" class="nav-link" data-scroll-target="#limitations-and-considerations-2">2. Limitations and considerations</a></li>
   <li><a href="#visualizations" id="toc-visualizations" class="nav-link" data-scroll-target="#visualizations">3. Visualizations</a>
   <ul class="collapse">
@@ -166,11 +167,16 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="about-this-data" class="level2">
-<h2 class="anchored" data-anchor-id="about-this-data">1. About this data</h2>
+<section id="about-this-project" class="level2">
+<h2 class="anchored" data-anchor-id="about-this-project">1. About this project</h2>
 <p>This is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media.</p>
-<p>It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1, 2016 to Jan.&nbsp;15, 2026, and includes columns detailing defendant information, offense date, offense location, court judgment date, fine information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
-<p>John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences before and after his term began.</p>
+<p>John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Our data analysis supports Dominic Walsh’s reporting to investigate Whitmire’s approach so far. Read the published works <a href="https://www.houstonpublicmedia.org/articles/news/city-of-houston/2026/02/28/544667/homeless-houston-mayor-whitmire-policy/">here</a> and <a href="https://www.houstonpublicmedia.org/articles/news/city-of-houston/2026/02/28/544671/homeless-houston-police-mayor-whitmire/">here</a>.</p>
+<p>Primary data analysis is by senior journalism student Layla Dajani and edited by Christian McDonald, associate professor of practice and director for the Dallas Morning News Journalism Innovation endowment.</p>
+</section>
+<section id="about-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="about-the-data">2. About the data</h2>
+<p>We analyzed Houston municipal court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan.&nbsp;1, 2016 to Jan.&nbsp;15, 2026, and includes columns detailing defendant information, offense date, offense location, court judgment date, fine information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.</p>
+<p>This analysis will often compare numbers and underline differences before and after January 2024, when Whitmire’s term began.</p>
 <p>There are 11 types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also eight new violation types that were only introduced in 2025, three of which are sidewalk obstructions, four are civility ordinances and the final one is other. See a more detailed breakdown of each violation code in <a href="02-analysis.html#violation-types">section 3</a> of the analysis notebook.</p>
 </section>
 <section id="limitations-and-considerations-2" class="level2">
@@ -201,34 +207,16 @@ ul.task-list li input[type="checkbox"] {
 <p>There are 11 types of violation codes that have been given since 2016:</p>
 <ol type="1">
 <li><strong>CC753:</strong> selling goods in public area</li>
-<li><strong>CC921:</strong> a sidewalk obstruction ordinance
-<ol type="i">
-<li>Sidewalk obstruction: OBSTRUCT SIDEWALK BY (PLACING/DEPOSITING/PERMIT PERSON UNDER CONTROL) OBJECT (BOX/MAT./VEH./ETC.)</li>
-</ol></li>
+<li><strong>CC921:</strong> a sidewalk obstruction ordinance</li>
 <li><strong>CC940:</strong> person obstructing sidewalk by sitting/laying down between 7 a.m. and 11 p.m.</li>
 <li><strong>CC941:</strong> obstructing sidewalk with bed mat or personal possessions between 7 a.m. and 11 p.m.</li>
 <li><strong>CC942:</strong> impair or obstruct sidewalk without a permit</li>
 <li><strong>CC943:</strong> impair or obstruct sidewalk beyond scope of permit</li>
-<li><strong>CC948:</strong> place or allow obstruction on sidewalk
-<ol type="i">
-<li>Sidewalk obstruction: PLACE OR ALLOW OBSTRUCTION ON SIDEWALK</li>
-</ol></li>
-<li><strong>CC956:</strong> a street vendor ordinance
-<ol type="i">
-<li>EXPOSE FOR SALE MERCHANDISE, TO-WIT:…ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)</li>
-</ol></li>
-<li><strong>CC2043:</strong> civility ordinance at any time for sitting or lying down on the sidewalk
-<ol type="i">
-<li>(CIVILITY ORDINANCE) AT ANY TIME SIT/LIE DOWN UPON SIDEWALK W/IN CBD, EADO MGMT DIST, EAST END</li>
-</ol></li>
-<li><strong>CC2044:</strong> civility ordinance at any time or place for placing personal posessions on the sidewalk.
-<ol type="i">
-<li>CIVILITY ORDINANCE) AT ANY TIME PLACE/DEPOSIT BEDDING OR PERSONAL POSSESSIONS ON SIDEWALK W/IN CBD, EADO</li>
-</ol></li>
-<li><strong>CC20245:</strong> civility ordinance at any time for sitting or lying down on the sidewalk in an area subject to rules and regulations for enforcement.
-<ol type="i">
-<li>(CIVILITY ORDINANCE) AT ANY TIME SIT/LIE DOWN UPON SIDEWALK W/IN OTHER DESIGNATED AREA SUBJECT TO RULES AND REGULATIONS FOR ENFORCEMENT</li>
-</ol></li>
+<li><strong>CC948:</strong> place or allow obstruction on sidewalk</li>
+<li><strong>CC956:</strong> a street vendor ordinance</li>
+<li><strong>CC2043:</strong> expanded civility ordinance at any time for sitting or lying down on the sidewalk</li>
+<li><strong>CC2044:</strong> expanded civility ordinance at any time or place for placing personal posessions on the sidewalk.</li>
+<li><strong>CC20245:</strong> civility ordinance at any time for sitting or lying down on the sidewalk in an area subject to rules and regulations for enforcement.</li>
 </ol>
 <p>CC940 and CC941 monthly citation numbers follow similar trends through this data set (<a href="02-analysis.html#plotting-3-3-1-2">analysis 3.3.1.2</a>), suggesting they have been given out at similar rates. They are also the most frequent violation codes in this data set (<a href="02-analysis.html#most-common">analysis 3.1</a>). But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased. In December 2025, one of the new violations, CC942, surpassed CC940 by two citations.</p>
 <p><img src="figures/types-by-month-22-plot.png" class="img-fluid"></p>
