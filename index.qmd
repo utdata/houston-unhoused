@@ -2,13 +2,19 @@
 title: "Houston Unhoused"
 ---
 
-## 1. About this data
+## 1. About this project
 
-This is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media. 
+This is a project for the Media Innovation Group at the University of Texas at Austin in collaboration with Houston Public Media.
 
-It is a study of Houston court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan. 1, 2016 to Jan. 15, 2026, and includes columns detailing defendant information, offense date, offense location, court judgment date, fine information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.
+John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Our data analysis supports Dominic Walsh's reporting to investigate Whitmire's approach so far. Read the published works [here](https://www.houstonpublicmedia.org/articles/news/city-of-houston/2026/02/28/544667/homeless-houston-mayor-whitmire-policy/) and [here](https://www.houstonpublicmedia.org/articles/news/city-of-houston/2026/02/28/544671/homeless-houston-police-mayor-whitmire/).
 
-John Whitmire became Houston mayor in January 2024, promising to end street homelessness during his term. Therefore this summary will often compare numbers and underline differences before and after his term began. 
+Primary data analysis is by senior journalism student Layla Dajani and edited by Christian McDonald, associate professor of practice and director for the Dallas Morning News Journalism Innovation endowment.
+
+## 2. About the data
+
+We analyzed Houston municipal court data showing citations given to unhoused people in downtown Houston. The data ranges from Jan. 1, 2016 to Jan. 15, 2026, and includes columns detailing defendant information, offense date, offense location, court judgment date, fine information and violation description. To map offense locations, addresses are geocoded using geocod.io. OpenRefine was also used to cluster people with misspelled or varied names.
+
+This analysis will often compare numbers and underline differences before and after January 2024, when Whitmire's term began. 
 
 There are 11 types of violations that have been given since 2016, all of which can be categorized into a sidewalk obstruction ordinance, civility ordinance or other. There are also eight new violation types that were only introduced in 2025, three of which are sidewalk obstructions, four are civility ordinances and the final one is other. See a more detailed breakdown of each violation code in [section 3](02-analysis.html#violation-types) of the analysis notebook.
 
@@ -42,21 +48,15 @@ There are 11 types of violation codes that have been given since 2016:
 
 1. **CC753:** selling goods in public area
 2. **CC921:** a sidewalk obstruction ordinance
-    i) Sidewalk obstruction: OBSTRUCT SIDEWALK BY (PLACING/DEPOSITING/PERMIT PERSON UNDER CONTROL) OBJECT (BOX/MAT./VEH./ETC.)
 3. **CC940:** person obstructing sidewalk by sitting/laying down between 7 a.m. and 11 p.m.
 4. **CC941:** obstructing sidewalk with bed mat or personal possessions between 7 a.m. and 11 p.m.
 5. **CC942:** impair or obstruct sidewalk without a permit
 6. **CC943:** impair or obstruct sidewalk beyond scope of permit
 7. **CC948:** place or allow obstruction on sidewalk
-    i) Sidewalk obstruction: PLACE OR ALLOW OBSTRUCTION ON SIDEWALK
 8. **CC956:** a street vendor ordinance
-    i) EXPOSE FOR SALE MERCHANDISE, TO-WIT:...ON A PUBLIC (SIDEWALK) (STREET) (ESPLANADE) (PROPERTY)
-9. **CC2043:** civility ordinance at any time for sitting or lying down on the sidewalk
-    i) (CIVILITY ORDINANCE) AT ANY TIME SIT/LIE DOWN UPON SIDEWALK W/IN CBD, EADO MGMT DIST, EAST END
-10. **CC2044:** civility ordinance at any time or place for placing personal posessions on the sidewalk.
-    i) CIVILITY ORDINANCE) AT ANY TIME PLACE/DEPOSIT BEDDING OR PERSONAL POSSESSIONS ON SIDEWALK W/IN CBD, EADO
+9. **CC2043:** expanded civility ordinance at any time for sitting or lying down on the sidewalk
+10. **CC2044:** expanded civility ordinance at any time or place for placing personal posessions on the sidewalk.
 11. **CC20245:** civility ordinance at any time for sitting or lying down on the sidewalk in an area subject to rules and regulations for enforcement.
-    i) (CIVILITY ORDINANCE) AT ANY TIME SIT/LIE DOWN UPON SIDEWALK W/IN OTHER DESIGNATED AREA SUBJECT TO RULES AND REGULATIONS FOR ENFORCEMENT
 
 CC940 and CC941 monthly citation numbers follow similar trends through this data set ([analysis 3.3.1.2](02-analysis.html#plotting-3-3-1-2)), suggesting they have been given out at similar rates. They are also the most frequent violation codes in this data set ([analysis 3.1](02-analysis.html#most-common)). But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased. In December 2025, one of the new violations, CC942, surpassed CC940 by two citations.
 

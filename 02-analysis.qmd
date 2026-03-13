@@ -485,7 +485,6 @@ types_by_month_16_plot <- ggplot(
              color = "grey70") +
   labs(
     title = str_wrap("Number of citations by year broken down by violation code from Jan. 2016 to Nov. 20 2025"),
-    subtitle = "",
     caption = "By Layla Dajani",
     x = "Year",
     y = "Citations per year"
@@ -541,13 +540,13 @@ types_by_month_22_plot <- ggplot(
              linetype = "dashed", 
              color = "grey70") +
   labs(
-    title = str_wrap("Number of citations by year broken down by violation code from January 2022 to December 2025"),
-    subtitle = strwrap("The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes."),
+    title = str_wrap("Number of citations by year broken down by violation code from January 2022 to December 2025", width = 70),
+    subtitle = str_wrap("The first dotted line indicates when Whitmire's term began, and the second indicates when he introduced new violation codes.", width = 90),
     caption = "By Layla Dajani",
     x = "Year",
     y = "Citations per year"
       ) +
-theme_minimal()
+  theme_minimal()
 
 ggsave("figures/types-by-month-22-plot.png")
 
@@ -1678,9 +1677,9 @@ zone_mo_pct_plot |>
   ggplotly()
 ```
 
-## 10 last bit
+## 10. last bit
 
-Closing out with some specifics on this. 
+Closing out with some specifics on zones. 
 
 ```{r}
 zoning_citations_clean |> 
@@ -1692,7 +1691,7 @@ zoning_citations_clean |>
   as_tibble()
 ```
 
-This is all citations in 2025 by area, which shows Central Business District totals. 
+Below is all citations in 2025 by area, which shows Central Business District totals. 
 
 ```{r}
 zoning_citations_clean |> 
