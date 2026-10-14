@@ -76,7 +76,7 @@ unhoused <- read_csv("data-processed/unhoused-clean.csv")
 # unhoused |> glimpse()
 ```
 
-## 1. Creating distinct object {#creating-distinct-object}
+## Creating distinct object {#creating-distinct-object}
 
 Right now, some rows have duplicate case numbers because the second appearance tracks how the case developed. Creating an object that does not have duplicate rows will ensure each row represents an individual citation. 
 
@@ -98,15 +98,15 @@ unhoused_distinct <- unhoused |>
 unhoused_distinct |> nrow()
 ```
 
-## 2. Citation numbers over time {#citation-numbers-over-time}
+## Citation numbers over time {#citation-numbers-over-time}
 
 Looking at how individual citation numbers have changed over time.
 
-### 2.1. Year with most citations
+### Year with most citations
 
 What is the year with the most citations?
 
-#### 2.1.1 Making object
+#### Making object
 
 ```{r}
 unhoused_yearly <- unhoused_distinct |> # unhoused_distinct ensures every row counts as an individual citation
@@ -117,7 +117,7 @@ unhoused_yearly <- unhoused_distinct |> # unhoused_distinct ensures every row co
 unhoused_yearly
 ```
 
-#### 2.1.2 Plotting
+#### Plotting
 
 Plotting yearly citations as an interactive bar chart.
 
@@ -141,19 +141,19 @@ yearly_plot |>
   ggplotly()
 ```
 
-#### 2.1.3 Data takeaways
+#### Data takeaways
 
 * The year with the highest number of citations is 2016 with 5800, followed by 2020 with 5011. The year with the lowest number of citations is 2018, at 1385.	
 * 2019 had 1815 citations and 2020 had 5011 -- that is roughly a 176% increase in one year. 2022 had 2007	citations, which is a roughly 60% decrease from 2020 to 2022.
 * 2025 had the highest citation count since 2021.
 
-### 2.2 Monthly citations
+### Monthly citations
 
-#### 2.2.1 Jul. 2023 to Dec. 2025
+#### July 2023 to December 2025
 
-How did the monthly citation count change between Jul. 2023 to Dec. 2025?
+How did the monthly citation count change between July 2023 to December 2025?
 
-##### 2.2.1.1 Making object
+##### Making object
 
 ```{r}
 monthly_citations <- unhoused_distinct |> 
@@ -167,7 +167,7 @@ monthly_citations <- unhoused_distinct |>
 monthly_citations
 ```
 
-##### 2.2.1.2 Plotting 
+##### Plotting 
 
 Plotting a bar chart to show the monthly citation count between Jul. 2023 and Dec. 2025. 
 
@@ -210,13 +210,13 @@ monthly_citations_plot |>
   ggplotly()
 ```
 
-##### 2.2.1.3 Data takeaways
+##### Data takeaways
 
 * From July 2023 to December 2025, October 2025 had the highest citation count at 492 citations. This spike is the peak of a monthly increase starting in May 2025. Monthly citations increased by about 463.2% between May and October 2025.
   
-#### 2.2.2 Jan. 2016 to Dec. 2025
+#### Jan. 2016 to Dec. 2025
 
-##### 2.2.2.1 Making object
+##### Making object
 
 ```{r}
 monthly_citations_all <- unhoused_distinct |> 
@@ -229,7 +229,7 @@ monthly_citations_all <- unhoused_distinct |>
 monthly_citations_all
 ```
 
-##### 2.2.2.2 Plotting
+##### Plotting
 
 Plotting a line graph to show a monthly citation count between January 2016 and December 2025. 
 
@@ -279,16 +279,16 @@ monthly_citations_all_plot |>
   ggplotly()
 ```
 
-##### 2.2.2.3 Data takeaways
+##### Data takeaways
 
 * While October 2025 showed the highest monthly citation count in four years at 492 citations, citation counts peaked even higher in January 2021, at 797 citations, and April 2016, with 715 citations.
 * Monthly citation counts sunk between July 2017 and July 2019. 
 
-### 2.3 Avg monthly citation
+### Avg monthly citation
 
 What is the average citation count for each calendar month from 2016 to 2025?
 
-#### 2.3.1 Making object
+#### Making object
 
 ```{r}
 mo_avg_citations <- unhoused_distinct |> 
@@ -305,7 +305,7 @@ mo_avg_citations <- unhoused_distinct |>
 mo_avg_citations
 ```
 
-#### 2.3.2 Plotting
+#### Plotting
 
 ```{r}
 mo_avg_citations_plot <- ggplot(
@@ -328,11 +328,11 @@ mo_avg_citations_plot |>
   ggplotly()
 ```
 
-#### 2.3.3 Data takeaways
+#### Data takeaways
 
-* January is the month that draws the most citations. But note that surges in specific years could be driving the averages higher in certain months. For instance, January 2016 and 2021 had exceptionally high citation counts, seen in figure 2.2.2.1.
+* January is the month that draws the most citations. But note that surges in specific years could be driving the averages higher in certain months. For instance, January 2016 and 2021 had exceptionally high citation counts, seen in the January 2016 and December 2025 graph.
 
-### 2.4 Citations after expansion
+### Citations after expansion
 
 Here we want to find the number of citations in the first half of 2026 (before the expansion to 24/7) and then in the later half.
 
@@ -345,9 +345,9 @@ unhoused_distinct |>
 
 There were 1,021 citations from January through June 2025 and 1,955 citations from July through December 2025.
 
-## 3. Violation types {#violation-types}
+## Violation types {#violation-types}
 
-### 3.1 Most common {#most-common}
+### Most common {#most-common}
 
 Finding the most common violation types.
 
@@ -361,7 +361,7 @@ violation_count <- unhoused_distinct |>
 violation_count
 ```
 
-#### 3.1.1 Data takeaways
+#### Data takeaways
 
 There are 11 types of violations that have been given between January 2016 and December 2025. Here is what they mean and their frequency:
 
@@ -390,11 +390,11 @@ There are 11 types of violations that have been given between January 2016 and D
   
 * The most common citation between January 2016 and December 2025 is CC940 with 15,294 offenses. CC941 is the runner-up at 13,777 offenses. The third most common is CC291 with 943 offenses.
 
-### 3.2 Violation codes by year
+### Violation codes by year
 
 Plotting yearly violation code totals from January 2016 to December 2025.
 
-#### 3.2.1 Making object
+#### Making object
 
 ```{r}
 unhoused_violations <- unhoused_distinct |> 
@@ -407,7 +407,7 @@ unhoused_violations <- unhoused_distinct |>
 # unhoused_violations |> glimpse()
 ```
 
-#### 3.2.2 Plotting
+####Plotting
 
 The first dotted line indicates when Whitmire's term began.
 
@@ -435,18 +435,18 @@ unhoused_violations_plot |>
   ggplotly()
 ```
 
-#### 3.2.1 Data takeaways
+#### Data takeaways
 
 * All codes except CC921, CC940 and CC941 first appeared in 2025. 
 * CC940 and CC941 seem to follow very similar trends until 2025, when they appear to drastically diverge for the first time in this data set.
 
-### 3.3 Violation codes by month
+### Violation codes by month
 
-#### 3.3.1 By count '16 to '25
+#### By count '16 to '25
 
 Breaking down monthly citation counts by violation codes from January 2016 to December 2025.
 
-##### 3.3.1.1 Making object
+##### Making object
 
 ```{r}
 types_by_month_16 <- unhoused_distinct |>
@@ -459,7 +459,7 @@ types_by_month_16 <- unhoused_distinct |>
 types_by_month_16
 ```
 
-##### 3.3.1.2 Plotting {#plotting-3-3-1-2}
+##### Plotting {#plotting-3-3-1-2}
 
 ::: {.callout-note appearance="simple"}
 
@@ -496,11 +496,11 @@ types_by_month_16_plot |>
   ggplotly()
 ```
 
-#### 3.3.2 By count '22 to '25 {#3.3.2}
+#### By count '22 to '25 {#3.3.2}
 
 Breaking down monthly citation counts by violation codes from January 2022 to December 2025.
 
-##### 3.3.2.1 Making object
+##### Making object
 
 ```{r}
 types_by_month_22 <- unhoused_distinct |>
@@ -514,7 +514,7 @@ types_by_month_22 <- unhoused_distinct |>
 types_by_month_22
 ```
 
-##### 3.3.1.2 Plotting
+##### Plotting
 
 ::: {.callout-note appearance="simple"}
 
@@ -555,16 +555,16 @@ types_by_month_22_plot |>
   ggplotly()
 ```
 
-##### 3.3.1.3 Data takeaways
+##### Data takeaways
 
 * This further suggests CC940 and CC941 have followed similar patterns, indicating they have been given out at the same rate. But starting around July 2025, when Whitmire introduced new ordinances, there became less CC941 citations relative to CC940 numbers, while new violation code counts increased. This is further displayed in the following graph.
 * In December 2025, one of the new violations, CC942, surpassed CC940 by two citations.
 
-#### 3.3.3 By percentage
+#### By percentage
 
 What is the percentage breakdown of violation codes over time? This tracks the correlation between CC940 and CC941 over time.
 
-##### 3.3.3.1 Making object
+##### Making object
 
 ```{r}
 codes_by_pct <- unhoused_distinct |> 
@@ -589,7 +589,7 @@ codes_by_pct <- unhoused_distinct |>
 codes_by_pct 
 ```
 
-##### 3.3.3.2 Plotting {#plotting-3-3-3-2}
+##### Plotting {#plotting-3-3-3-2}
 
 ::: {.callout-note appearance="simple"}
 
@@ -645,15 +645,15 @@ codes_by_pct_plot |>
   ggplotly()
 ```
 
-##### 3.3.3.3 Data takeaways
+##### Data takeaways
 
 * Starting around July 2025, when Whitmire introduced new violation codes, the CC941 percentage decreased, while new violation code percentages increased.
 * August 2025 was the first time the percentage of all "other" codes exceeded CC941 for that month, and October 2025 was they exceeded CC940 for that month.
 * By December 2025, all "other" codes reach its all-time peak at 50.3 percent, surpassing CC940 and CC941 percentages. CC940 also plummetted to about 15.2 percent that month, placing it below CC941, which made up about 23.6 percent.
 
-### 3.4 Ordinance types over time
+### Ordinance types over time
 
-#### 3.4.1 Making object
+#### Making object
 
 Grouping by ordinance type and plotting over time.
 
@@ -668,7 +668,7 @@ types_over_time <- unhoused_distinct |>
 types_over_time
 ```
 
-#### 3.4.2 Plotting
+#### Plotting
 
 ::: {.callout-note appearance="simple"}
 
@@ -718,15 +718,15 @@ types_over_time_plot |>
   ggplotly()
 ```
 
-#### 3.4.3 Data takeaways
+#### Data takeaways
 
 October 2025 had the highest sidewalk obstruction citations per month in this data set.
 
-## 4. Judgments and dispositions
+## Judgments and dispositions
 
-### 4.1 Most common judgment
+### Most common judgment
 
-#### 4.1.1 Unrefined
+#### Unrefined
 
 What is the most common specific judgment?
 
@@ -737,7 +737,7 @@ unhoused |> # not using unhoused_distinct here to show the true judgment stats. 
   arrange(desc(judgment_count))
 ```
 
-#### 4.1.2 Refined
+#### Refined
 
 What is the most common refined judgment?
 
@@ -756,7 +756,7 @@ unhoused |>
   arrange(desc(judgment_count))
 ```
 
-#### 4.1.3 Case dismissed
+#### Case dismissed
 
 Break down of case dismissed judgments.
 
@@ -772,12 +772,12 @@ unhoused |>
   tibble()
 ```
 
-#### 4.1.4 Data takeaways {#data-takeaways-4-1-4}
+#### Data takeaways {#data-takeaways-4-1-4}
 
 * "Case dismissed" is the most common judgment, with a count of 11,755.
 * The most common reason a case is dismissed is because the officer was not present. Of the 11,755 cases that were dismissed, about 72% of cases were dismissed because officers were not present. About 20% of case dismissals were because "OUTREACH(Indigency)."
 
-### 4.2 Most common disposition
+### Most common disposition
 
 What is the most common disposition? 
 
@@ -793,16 +793,16 @@ unhoused |>
   tibble()
 ```
 
-#### 4.2.1 Data takeaways {#data-takeaways-4-2-1}
+#### Data takeaways {#data-takeaways-4-2-1}
 
 * Of the cases that have received a disposition, about 59% were dismissed at trial. 
 * About 35% of cases that have received a disposition were ruled "guilty by trial judge."
 
-### 4.3 Yearly guilty cases
+### Yearly guilty cases
 
 Guilty disposition counts by year.
 
-#### 4.3.1 Making object
+#### Making object
 
 ```{r}
 yearly_guilty <- unhoused |> 
@@ -814,7 +814,7 @@ yearly_guilty <- unhoused |>
 yearly_guilty
 ```
 
-#### 4.3.2 Plotting
+#### Plotting
 
 ```{r}
 yearly_guilty_plot <- ggplot(
@@ -834,14 +834,14 @@ yearly_guilty_plot |>
   ggplotly()
 ```
 
-#### 4.3.1 Data takeaways
+#### Data takeaways
 
 * 2018 is the year with the lowest number of guilty dispositions at 50 dispositions.
 * 2016 is the year with the highest number of guilty dispositions at 1951 dispositions, followed by 2021 with 931.
 
-## 5. Top people
+## Top people
 
-### 5.1 Distinct people
+### Distinct people
 
 How many distinct people have received a citation?
 
@@ -850,7 +850,7 @@ unhoused_distinct |>
   summarise(people_count = n_distinct(refined_name))
 ```
 
-#### 5.1.1 Data takeaway {#data-takeaways-5-1-1}
+#### Data takeaway {#data-takeaways-5-1-1}
 
 :::{.callout-important}
 While thorough efforts were made to consolidate variations of the same names, uncertainties in that process mean this number should be treated as an estimate. See more about this in [section 2](limitations-and-considerations-2) of the overview notebook.
@@ -858,7 +858,7 @@ While thorough efforts were made to consolidate variations of the same names, un
 
 * There are an estimated 4,704 distinct people who have received a citation between Jan. 1, 2016 and Dec. 31, 2025. 
 
-### 5.2 Most citations
+### Most citations
 
 Who has received the most citations since January 2016? 
 
@@ -873,13 +873,13 @@ unhoused_distinct |>
   filter(citation_count >= 100)
 ```
 
-#### 5.2.1 Data takeaways {#data-takeaways-5-2-1}
+#### Data takeaways {#data-takeaways-5-2-1}
 
 * There are 27 people who have received at least 100 total citations. 
 * The person with the most citations is Patricia Norris, who has received 794 total citations, all given between October 2017 and May 2025. 
 * The person with the second most citations is Forest H Smith, who has received 351 total citations, all given between August 2020 and November 2025.
 
-### 5.3 Most fines and dues {#most-fines-and-dues}
+### Most fines and dues {#most-fines-and-dues}
 
 Below is a searchable table that answers the following questions:
 
@@ -914,7 +914,7 @@ individual_fines |>
   datatable()
 ```
 
-#### 5.3.1 Data takeaways {#data-takeaways-5-3-1}
+#### Data takeaways {#data-takeaways-5-3-1}
 
 * Most fined:
   + Patricia Norris has been charged the highest total fines at about \$199,123. She hasn't paid any of her fines, but has had about \$149,118 dismissed, which leaves about \$50,006 that she still owes.
@@ -925,7 +925,7 @@ individual_fines |>
 * Paid the most in time served:
   + Bobby L Anderson Jr. has paid the most fines with "time served." He has been fined roughly \$38,245. Of that sum, he paid \$26,489 with time served, none in "not credit" and had about \$9,287 dismissed.
   
-## 6. Fines
+## Fines
 
 1. How many distinct people are there who were fined?
 2. How many people still owe fines to the city? How much is the city owed in total?
@@ -933,7 +933,7 @@ individual_fines |>
 4. How many people have paid some/all of their fines when time_served = "YES"?
 5. How many people have had some/all of their fines dismissed?
 
-### 6.1 Fined people
+### Fined people
 
 How many distinct people are there who were fined?
 
@@ -946,7 +946,7 @@ individual_fines |>
             ) #@ the total number of people must be updated as needed
 ```
 
-### 6.2 Owed fines
+### Owed fines
 
 How many people still owe fines to the city? How much is the city owed in total?
 
@@ -960,11 +960,11 @@ individual_fines |>
   )
 ```
 
-### 6.3 Fines paid not served
+### Fines paid not served
 
 How many people have paid some/all of their fines when time_served = "NO"?
 
-#### 6.3.1 Some fines paid
+#### Some fines paid
 
 How many people have paid at least some of their fines when time_served = "NO"?
 
@@ -978,7 +978,7 @@ individual_fines |>
   )
 ```
 
-#### 6.3.2 All fines paid - no dismissals
+#### All fines paid - no dismissals
 
 How many people have paid all of their fines when time_served = "NO" with no help from dismissals?
 
@@ -994,11 +994,11 @@ individual_fines |>
   )
 ```
 
-### 6.4 Fines paid time served
+### Fines paid time served
 
 How many people have paid some/all of their fines when time_served = "YES"?
 
-#### 6.4.1 Some fines paid
+#### Some fines paid
 
 How many people have paid at least some of their fines when time_served = "YES"?
 
@@ -1012,7 +1012,7 @@ individual_fines |>
   )
 ```
 
-#### 6.4.2 All fines paid - no dismissals
+#### All fines paid - no dismissals
 
 How many people have paid all of their fines when time_served = "YES" with no help from dismissals?
 
@@ -1028,11 +1028,11 @@ individual_fines |>
   )
 ```
 
-### 6.5 Fines dismissed
+### Fines dismissed
 
 How many people have had some/all of their fines dismissed?
 
-#### 6.5.1 Some dismissed
+#### Some dismissed
 
 How many people have had at least some of their fines dismissed?
 
@@ -1046,7 +1046,7 @@ individual_fines |>
   )
 ```
 
-#### 6.5.2 All dismissed
+#### All dismissed
 
 How many people have had all of their fines dismissed?
 
@@ -1063,7 +1063,7 @@ individual_fines |>
 
 ```
 
-### 6.6 Data takeaways {#data-takeaways-6-6}
+### Data takeaways {#data-takeaways-6-6}
 
 1. **Total fined:** Of the 4,704 distinct people who have received a citation since 2016, about 4,477 have received a fine with at least one citation. The cumulative total of all fines is $6,795,858.
     i) So about 95.2% of people who have received a citation have also received a fine at some point.
@@ -1076,11 +1076,11 @@ individual_fines |>
 5. **Total dismissed:** Of the 4,704 people, 1,470 have had at least some of their fines dismissed, and 705 of those 1,470 people had all of their fines dismissed. A total of \$2,246,750	has been dismissed. 
     i) So about 31% of the roughly $6.7 million the city has fined unhoused people since 2016 has been dismissed.
 
-## 7. Jail time
+## Jail time
 
-### 7.1 Credit time served
+### Credit time served
 
-#### 7.1.1 Distinct jailed judgments
+#### Distinct jailed judgments
 
 * How many individual people have received at least one CREDIT TIME SERVED judgment? 
 * Who has received the most CREDIT TIME SERVED judgments?
@@ -1093,7 +1093,7 @@ unhoused |>
   arrange(desc(credit_jail_judgments))
 ```
 
-#### 7.1.2 Distinct judgment dates
+#### Distinct judgment dates
 
 Who has received the most CREDIT TIME SERVED judgments on distinct judgment dates? 
 
@@ -1115,23 +1115,23 @@ unhoused |>
   arrange(desc(credit_jail_judgment_days))
 ```
 
-#### 7.1.3 Data takeaways
+#### Data takeaways
 
 * Of the 4,704 people who have received a citation since 2016, 1,070 of them received a "CREDIT TIME SERVED" judgment at least once. Of those 4,704, 848 people have received more than one "CREDIT TIME SERVED" judgment.
 * The person with the highest "CREDIT TIME SERVED" judgment count is Kevin P Shakesnider, who has received 136  judgments. Those 136 judgments were given across 22 distinct judgment dates.
 * The person with the second highest "CREDIT TIME SERVED" judgment count is BOBBY L ANDERSON JR, who has received 104  judgments. Those 104 judgments were given across 7 distinct judgment dates.
 * Note that although Patricia Norris has received the highest citation count, she has never received a "CREDIT TIME SERVED" judgment.
 
-## 8. Individual people analysis
+## Individual people analysis
 
-### 8.1. Kevin P Shakesnider
+### Kevin P Shakesnider
 
 Shakesnider data takeaways so far:
 
 * **Highest paid "not credit" and "not credit" + "time served" fines:** Kevin P Shakesnider is the person who has paid the highest amount of fines when considering "not credit" and time served combined. He is also the person who has paid the most fines in "not credit." He has been fined a total of \$45,183. He paid about \$26,108 with "CREDIT TIME SERVED," he paid \$2,576 in "not credit," and has had roughly \$10,916 dismissed. As of December 2025, he still owes about \$5,583.
 * **Highest "CREDIT TIME SERVED" judgments:** He is also the person with the highest "CREDIT TIME SERVED" judgments at 136. Those 136 judgments were given across 22 distinct judgment dates.
 
-#### 8.1.1 "CREDIT TIME SERVED"
+#### "CREDIT TIME SERVED"
 
 When did Kevin P Shakesnider receive the highest jail citations in one judgment? What is the overall date range?
 
@@ -1146,17 +1146,17 @@ shakesnider_jailed <- unhoused |>
 shakesnider_jailed
 ```
 
-#### 8.1.2 Data takeaway
+#### Data takeaway
 
 All 22 of his judgment dates when Shakesnider received "CREDIT TIME SERVED" judgments fall between Jan. 13, 2016 and Nov. 25, 2015. On June 23, he received a "CREDIT TIME SERVED" judgment for 26 citations, his highest in one single day.
 
-### 8.2 Patricia Norris {#patricia-norris}
+### Patricia Norris {#patricia-norris}
 
 Norris takeaway so far:
 
 * Patricia Norris has been charged the highest total fines at about \$199,123. She hasn't paid any of her fines, but has had about \$149,118 dismissed, which leaves about \$50,006 that she still owes. 
 
-#### 8.2.1 Visualizing
+#### Visualizing
 
 Making Norris object.
 
@@ -1185,7 +1185,7 @@ norris_citations <- norris |>
 norris_citations
 ```
 
-##### 8.2.2.2 Plotting
+##### Plotting
 
 ```{r}
 #| message: false
@@ -1208,18 +1208,16 @@ ggsave("figures/norris_citations_plot.png")
 norris_citations_plot |> ggplotly()
 ```
 
-###### 8.2.2.1.1 Data takeaways
+###### Data takeaways
 
 * Each one of these points is a day, so the higher the citation count, the more citations she received in a single day. Almost every time Patricia Norris has been given a citation, she has also been given at least one other citation. She was also hit with citations almost consistently from January 2020 to May 2025.
 * Norris has only ever received violation codes CC940 and CC941.
 
-START FRANKLIN HERE
-
-### 8.3 Trazawell Franklin {#trazawell-franklin}
+### Trazawell Franklin {#trazawell-franklin}
 
 Trazawell Franklin is quoted in the story.
 
-#### 8.3.1 Visualizing
+#### Visualizing
 
 Making Franklin object.
 
@@ -1248,7 +1246,7 @@ franklin_citations <- franklin |>
 franklin_citations
 ```
 
-##### 8.3.1.1 Plotting
+##### Plotting
 
 ```{r}
 #| message: false
@@ -1271,19 +1269,19 @@ ggsave("figures/franklin_citations_plot.png")
 franklin_citations_plot |> ggplotly()
 ```
 
-##### 8.3.1.2 Data takeaways
+##### Data takeaways
 
 * Each one of these points is a day, so the higher the citation count, the more citations received in a single day. Franklin received six citations on three occasions.
 
-## 9. Mapping analysis
+## Mapping analysis
 
 Mapping citations by ordinance zones. Skip to section 9.2 for results.
 
-### 9.1 Preparing to plot map
+### Preparing to plot map
 
 Setting up to map.
 
-#### 9.1.1 Importing district data
+#### Importing district data
 
 Importing Houston district data as an sf object.
 
@@ -1298,7 +1296,7 @@ hou_zones <- st_read(
 hou_zones
 ```
 
-#### 9.1.2 Simple feature
+#### Simple feature
 
 Turning the addresses in a Simple Feature Collection.
 
@@ -1312,7 +1310,7 @@ pts_zones <- st_as_sf(
 # pts_zones |> glimpse()
 ```
 
-#### 9.1.3 Fixing invalid district lines
+#### Fixing invalid district lines
 
 ```{r}
 clean_zones <- st_make_valid(hou_zones)
@@ -1320,7 +1318,7 @@ clean_zones <- st_make_valid(hou_zones)
 cleaner_zones <- st_transform(clean_zones, 4326)
 ```
 
-#### 9.1.4 Citation to zone
+#### Citation to zone
 
 Assigning each citation to a zone.
 
@@ -1341,7 +1339,7 @@ zoning_citations_clean <- zoning_citations |>
 # zoning_citations_clean |> glimpse()
 ```
 
-#### 9.1.5 Citations by zone
+#### Citations by zone
 
 Which zone has received the most citations from 2016 to Sept. 2025? 
 
@@ -1356,7 +1354,7 @@ zone_counts <- zoning_citations_clean |>
 zone_counts
 ```
 
-##### 9.1.5.1 With date
+##### With date
 
 Making a version of the zoned object that includes each offense's floor month.
 
@@ -1388,7 +1386,7 @@ zones_to_map_monthly |>
   write_csv("data-processed/requested-files/zones-to-map.csv")
 ```
 
-### 9.2 Plotting {#plotting-9.2}
+### Plotting {#plotting-9.2}
 
 Cleaning cleaner_zone names and joining with the zoned object.
 
@@ -1399,7 +1397,7 @@ zones_to_map <- cleaner_names_zones |>
   left_join(zone_counts, by = "name")
 ```
 
-#### 9.2.1 General mapview
+#### General mapview
 
 Plotting an interactive heat map to show each district's citations.
 
@@ -1412,13 +1410,13 @@ mapview(
 ) 
 ```
 
-#### 9.2.2 Zones by year
+#### Zones by year
 
 Visualizing each civility ordinance zone's citation count by year in two stacked bar charts, one by citation count and the other by citation percentage.
 
-##### 9.2.2.1 By count
+##### By count
 
-###### 9.2.2.1.1 Making object
+###### Making object
 
 ```{r}
 zone_year_counts <- zoning_citations_clean |>
@@ -1432,7 +1430,7 @@ zone_year_counts <- zoning_citations_clean |>
 zone_year_counts
 ```
 
-###### 9.2.2.1.2 Plotting
+###### Plotting
 
 ```{r}
 zone_year_counts_plot <- ggplot(
@@ -1471,9 +1469,9 @@ zone_year_counts_plot |>
   ggplotly()
 ```
 
-##### 9.2.2.2 By percentage
+##### By percentage
 
-###### 9.2.2.2.1 Making object
+###### Making object
 
 ```{r}
 zone_year_pct <- zone_year_counts |>
@@ -1484,7 +1482,7 @@ zone_year_pct <- zone_year_counts |>
 zone_year_pct
 ```
 
-###### 9.2.2.2.2 Plotting
+###### Plotting
 
 ```{r}
 zone_year_pct_plot <- ggplot(
@@ -1523,11 +1521,11 @@ zone_year_pct_plot |>
   ggplotly()
 ```
 
-#### 9.2.3 Zones by month
+#### Zones by month
 
-##### 9.2.3.1 By count
+##### By count
 
-###### 9.2.3.1.1 Making object
+###### Making object
 
 ```{r}
 zone_month_counts <- zoning_citations_clean |>
@@ -1542,7 +1540,7 @@ zone_month_counts <- zoning_citations_clean |>
 zone_month_counts
 ```
 
-###### 9.2.3.1.2 Plotting
+###### Plotting
 
 ```{r}
 zone_year_counts_plot <- ggplot(
@@ -1589,9 +1587,9 @@ zone_year_counts_plot |>
   ggplotly()
 ```
 
-##### 9.2.3.2 By percent
+##### By percent
 
-###### 9.2.3.2.1 Making object
+###### Making object
 
 ```{r}
 zone_mo_pct <- zone_month_counts |>
@@ -1603,7 +1601,7 @@ zone_mo_pct <- zone_month_counts |>
 zone_mo_pct
 ```
 
-###### 9.2.2.2.2 Plotting
+###### Plotting
 
 ```{r}
 zone_mo_pct_plot <- ggplot(
@@ -1650,7 +1648,7 @@ zone_mo_pct_plot |>
   ggplotly()
 ```
 
-## 10 last bit
+## Last bit
 
 Closing out with some specifics on this. 
 

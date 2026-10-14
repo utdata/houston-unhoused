@@ -1,0 +1,101 @@
+---
+title: "Iteration"
+---
+## Goals of this notebook
+
+This notebook is a demo of an iterative process for adding new court data releases without redoing manual work. It follows the same order as the cleaning and analysis notebooks.
+
+1. Configure project constants in one place
+2. Import every release found in `data-raw/`
+3. Merge releases and remove duplicates (keeping the most recent release)
+4. Geocode only addresses that have never been geocoded
+5. Apply saved OpenRefine decisions (crosswalks) and flag anything new for review
+6. Fix dates and create flags
+7. Validate and export clean data
+8. Compare the new clean data to the previous release
+9. Analysis: compute numbers instead of typing them
+## R Markdown
+
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(readxl)
+
+## Importing and cleaning names
+
+# finds every data set in data-raw, so a new one is picked up automatically
+raw_files <- list.files("data-raw",
+                        pattern = "^unhoused-raw-\\d+\\.xlsx$",
+                        full.names = TRUE)
+
+# does everything we used to do one data set at a time
+read_unhoused <- function(file) {
+  unhoused_raw <- suppressWarnings(read_excel(file))
+
+  unhoused_names <- unhoused_raw |>
+    clean_names() |>
+    rename(any_of(c(
+      defendant_address = "defendent_address",               
+      total_fine_amount_due = "totla_fine_amount_due",       
+      total_fine_amount_paid = "totla_fine_amount_paid",     
+      total_fine_amount_dismissed = "totla_fine_amount_dismissed",
+      phone_number = "defendant_phone_number"              
+    )))
+
+  unhoused_names |>
+    mutate(phone_number = as.character(phone_number), 
+           data_origin = paste0("unhoused_", str_extract(basename(file), "\\d+"))) # unhoused_1, unhoused_2...
+}
+
+unhoused_list <- map(raw_files, read_unhoused)
+
+## Merging data sets 
+
+unhoused_merged <- bind_rows(unhoused_list)
+
+if (n_distinct(map_int(unhoused_list, ncol)) > 1 |
+    ncol(unhoused_merged) != ncol(unhoused_list[[1]])) {
+  stop("The columns in one of the data sets don't match. Run glimpse() on each one and add a rename() to read_unhoused().")
+}
+
+## Remove duplicate rows
+
+unhoused_no_dupes <- unhoused_merged |>
+  arrange(desc(as.numeric(str_extract(data_origin, "\\d+")))) |> 
+  distinct(across(!c(
+    data_origin,
+    defendant_address)),
+    .keep_all = TRUE)
+
+## Geocoding
+
+# Reformatting addresses to geocode externally using geocodio
+unhoused_reformatted <- unhoused_no_dupes |>
+  mutate(full_address = paste(str_remove(offense_location, ","),
+                              "Houston, TX", sep = ", "))
+
+geocoded_files <- list.files("data-processed",
+                             pattern = "^unhoused-geocoded-\\d+\\.csv$",
+                             full.names = TRUE)
+
+geocoded_addresses <- map(geocoded_files, read_csv, col_types = cols(.default = "c")) |>
+  bind_rows() |>
+  clean_names() |> 
+  select(full_address, starts_with("geocodio")) |>
+  distinct(full_address, .keep_all = TRUE)
+
+unhoused_to_geocode <- unhoused_reformatted |>
+  filter(!full_address %in% geocoded_addresses$full_address)
+
+# Exporting the new rows to geocode in geocodio
+next_number <- length(geocoded_files) + 1
+
+if (nrow(unhoused_to_geocode) > 0) {
+  write_csv(unhoused_to_geocode,
+            paste0("data-processed/unhoused-to-geocode-", next_number, ".csv"))
+}
+
+
+```
